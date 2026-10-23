@@ -31,35 +31,35 @@ export default function BookmarksModal({
         onClick={onClose} 
       />
 
-      <div className="relative w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden z-10 my-8">
+      <div className="relative w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-10 my-8">
         
         {/* Glow Line */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 to-teal-400" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-rose-500 to-amber-500" />
 
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="p-6 sm:p-8 space-y-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Bookmark className="w-5 h-5 fill-amber-400" />
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+              <Bookmark className="w-5 h-5 fill-amber-500 text-amber-500" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Your Bookmarks</h3>
-              <p className="text-xs text-slate-400">Quickly access tools saved to your browser</p>
+              <h3 className="text-xl font-black text-slate-900">Your Bookmarks</h3>
+              <p className="text-xs text-slate-500 font-medium">Quickly access tools saved to your browser</p>
             </div>
           </div>
 
           {bookmarkedTools.length === 0 ? (
-            <div className="text-center py-10 space-y-2 border border-dashed border-slate-800 rounded-2xl">
-              <Bookmark className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-sm font-medium text-slate-300">No bookmarks yet</p>
+            <div className="text-center py-10 space-y-2 border border-dashed border-slate-200 bg-slate-50 rounded-2xl">
+              <Bookmark className="w-8 h-8 text-slate-400 mx-auto" />
+              <p className="text-sm font-bold text-slate-700">No bookmarks yet</p>
               <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                Click the bookmark heart/ribbon icon on any tool card to save it here for instant access.
+                Click the bookmark icon on any tool card to save it here for instant access.
               </p>
             </div>
           ) : (
@@ -67,7 +67,7 @@ export default function BookmarksModal({
               {bookmarkedTools.map((tool) => (
                 <div
                   key={tool.id}
-                  className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-3 group hover:border-slate-700 transition-colors"
+                  className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 group hover:border-red-300 hover:bg-red-50/20 transition-all"
                 >
                   <div 
                     onClick={() => { onClose(); onOpenDetails(tool); }}
@@ -76,27 +76,27 @@ export default function BookmarksModal({
                     <img
                       src={tool.iconUrl || 'https://via.placeholder.com/32'}
                       alt={tool.name}
-                      className="w-9 h-9 rounded-xl object-contain bg-slate-900 p-1 shrink-0"
+                      className="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"
                     />
                     <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-white group-hover:text-teal-400 transition-colors truncate">
+                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors truncate">
                         {tool.name}
                       </h4>
-                      <p className="text-[11px] text-slate-400 truncate">{tool.description}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{tool.description}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => onVisitTool(tool)}
-                      className="p-2 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 transition-colors"
+                      className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                       title="Open Website"
                     >
                       <ExternalLink className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => onRemoveBookmark(tool.id)}
-                      className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                      className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                       title="Remove from favorites"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -110,7 +110,7 @@ export default function BookmarksModal({
           <div className="pt-2 text-right">
             <button
               onClick={onClose}
-              className="px-5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200"
+              className="px-5 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700"
             >
               Close
             </button>

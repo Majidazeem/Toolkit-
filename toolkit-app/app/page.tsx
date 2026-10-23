@@ -149,7 +149,7 @@ export default function HomePage() {
   }, [tools, activeDetailTool]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#07070a]">
+    <div className="min-h-screen flex flex-col justify-between bg-slate-50">
       {/* Top Navigation */}
       <Navbar
         settings={settings}
@@ -194,17 +194,17 @@ export default function HomePage() {
 
               {/* Tools Grid (2 PER ROW ON MOBILE, 3-4 ON DESKTOP) */}
               {filteredTools.length === 0 ? (
-                <div className="py-16 text-center space-y-3 border border-dashed border-red-950/60 rounded-3xl bg-[#0c0c14]/50">
-                  <div className="w-14 h-14 rounded-2xl bg-[#12121c] border border-slate-800 text-slate-500 mx-auto flex items-center justify-center">
+                <div className="py-16 text-center space-y-3 border border-dashed border-slate-200 rounded-3xl bg-white shadow-xs">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 mx-auto flex items-center justify-center">
                     <Frown className="w-7 h-7" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">No tools found</h3>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  <h3 className="text-lg font-black text-slate-900">No tools found</h3>
+                  <p className="text-xs text-slate-600 max-w-sm mx-auto font-medium">
                     No resources matched your search filter. Try clearing your search query.
                   </p>
                   <button
                     onClick={handleResetFilters}
-                    className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white"
+                    className="px-4 py-2 text-xs font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-xs"
                   >
                     Clear Filters
                   </button>
@@ -230,15 +230,15 @@ export default function HomePage() {
               )}
 
               {/* Instant Utilities Callout Banner */}
-              <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-red-950/40 via-[#0e0e16] to-amber-950/30 border border-red-600/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="p-5 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-[10px] font-black text-red-600 uppercase tracking-wider flex items-center gap-1.5">
                     <Wrench className="w-3.5 h-3.5" /> Built-In Browser Utilities
                   </span>
-                  <h3 className="text-base sm:text-lg font-black text-white uppercase">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase">
                     Zero-Install Developer & Web Power Tools
                   </h3>
-                  <p className="text-xs text-slate-400 max-w-xl">
+                  <p className="text-xs text-slate-600 max-w-xl font-medium">
                     Use our built-in JSON Formatter, QR Code Generator, Password Generator, and Meta Previewer with 100% privacy.
                   </p>
                 </div>
@@ -248,7 +248,7 @@ export default function HomePage() {
                     setActiveTab('utilities');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/20 transition-all shrink-0 hover:scale-105"
+                  className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md shadow-red-600/20 transition-all shrink-0 hover:scale-105"
                 >
                   Open Utilities Tab
                 </button>

@@ -59,26 +59,26 @@ export default function ToolDetailModal({
     }
   };
 
-  const shareText = encodeURIComponent(`Check out ${tool.name} on Yalla Toolkit: ${tool.url}`);
+  const shareText = encodeURIComponent(`Check out ${tool.name} on LEGEND MOD TOOLKIT: ${tool.url}`);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity" 
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
         onClick={onClose} 
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden z-10 my-8">
+      <div className="relative w-full max-w-3xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden z-10 my-8">
         
         {/* Top Header Glow Bar */}
-        <div className="h-2 w-full bg-gradient-to-r from-teal-400 via-cyan-400 to-indigo-500" />
+        <div className="h-2 w-full bg-gradient-to-r from-red-600 via-rose-500 to-amber-500" />
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
           title="Close modal"
         >
           <X className="w-5 h-5" />
@@ -89,7 +89,7 @@ export default function ToolDetailModal({
           {/* Tool Identity Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 p-2.5 shrink-0 flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 p-2.5 shrink-0 flex items-center justify-center shadow-xs">
                 <img
                   src={tool.iconUrl || 'https://via.placeholder.com/64'}
                   alt={tool.name}
@@ -103,17 +103,17 @@ export default function ToolDetailModal({
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-extrabold text-white">{tool.name}</h2>
+                  <h2 className="text-2xl font-black text-slate-900">{tool.name}</h2>
                   {tool.featured && (
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Featured
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-red-600" /> Featured
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 font-medium">
                   <span className="capitalize">{tool.category}</span>
                   <span>•</span>
-                  <span className="text-teal-400 font-medium">{tool.pricing}</span>
+                  <span className="text-red-600 font-bold">{tool.pricing}</span>
                   {tool.author && (
                     <>
                       <span>•</span>
@@ -130,17 +130,17 @@ export default function ToolDetailModal({
                 onClick={() => onToggleBookmark(tool.id)}
                 className={`p-2.5 rounded-xl border transition-colors ${
                   isBookmarked
-                    ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
-                    : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:text-white'
+                    ? 'bg-amber-50 border-amber-300 text-amber-600'
+                    : 'bg-white border-slate-200 text-slate-400 hover:text-amber-500'
                 }`}
                 title={isBookmarked ? 'Remove Bookmark' : 'Save Tool'}
               >
-                <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-amber-400' : ''}`} />
+                <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-amber-500' : ''}`} />
               </button>
 
               <button
                 onClick={() => onVisitTool(tool)}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-lg shadow-teal-500/25 transition-all hover:scale-105"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 transition-all hover:scale-105"
               >
                 <span>Open Website</span>
                 <ExternalLink className="w-4 h-4" />
@@ -149,31 +149,31 @@ export default function ToolDetailModal({
           </div>
 
           {/* Metrics summary */}
-          <div className="grid grid-cols-3 gap-3 p-3.5 bg-slate-950/60 rounded-2xl border border-slate-800 text-center text-xs">
+          <div className="grid grid-cols-3 gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-center text-xs">
             <div>
-              <div className="text-slate-400">Total Views</div>
-              <div className="text-base font-bold text-white flex items-center justify-center gap-1 mt-0.5">
-                <Eye className="w-4 h-4 text-teal-400" /> {tool.views}
+              <div className="text-slate-500 font-medium">Total Views</div>
+              <div className="text-base font-black text-slate-900 flex items-center justify-center gap-1 mt-0.5">
+                <Eye className="w-4 h-4 text-red-600" /> {tool.views}
               </div>
             </div>
             <div>
-              <div className="text-slate-400">Direct Clicks</div>
-              <div className="text-base font-bold text-white flex items-center justify-center gap-1 mt-0.5">
-                <MousePointerClick className="w-4 h-4 text-indigo-400" /> {tool.clicks}
+              <div className="text-slate-500 font-medium">Direct Clicks</div>
+              <div className="text-base font-black text-slate-900 flex items-center justify-center gap-1 mt-0.5">
+                <MousePointerClick className="w-4 h-4 text-slate-700" /> {tool.clicks}
               </div>
             </div>
             <div>
-              <div className="text-slate-400">Community Rating</div>
-              <div className="text-base font-bold text-amber-400 flex items-center justify-center gap-1 mt-0.5">
-                <Star className="w-4 h-4 fill-amber-400" /> {tool.rating} / 5.0
+              <div className="text-slate-500 font-medium">Community Rating</div>
+              <div className="text-base font-black text-amber-600 flex items-center justify-center gap-1 mt-0.5">
+                <Star className="w-4 h-4 fill-amber-500 text-amber-500" /> {tool.rating} / 5.0
               </div>
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">About This Tool</h4>
-            <p className="text-sm text-slate-200 leading-relaxed">
+            <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">About This Tool</h4>
+            <p className="text-sm text-slate-700 leading-relaxed font-normal">
               {tool.longDescription || tool.description}
             </p>
           </div>
@@ -181,11 +181,11 @@ export default function ToolDetailModal({
           {/* Key Features Checklist */}
           {tool.features && tool.features.length > 0 && (
             <div className="space-y-2.5">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Key Highlights</h4>
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Key Highlights</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {tool.features.map((feat, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80 text-xs text-slate-200">
-                    <Check className="w-4 h-4 text-teal-400 shrink-0" />
+                  <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium">
+                    <Check className="w-4 h-4 text-red-600 shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -195,12 +195,12 @@ export default function ToolDetailModal({
 
           {/* Tags */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tags</h4>
+            <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Tags</h4>
             <div className="flex flex-wrap gap-2">
               {tool.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs font-medium px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700"
+                  className="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200"
                 >
                   #{tag}
                 </span>
@@ -211,10 +211,10 @@ export default function ToolDetailModal({
           {/* Interactive Embed or Preview */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Preview</h4>
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Live Preview</h4>
               <button
                 onClick={() => setShowEmbed(!showEmbed)}
-                className="text-xs font-medium text-teal-400 hover:text-teal-300 flex items-center gap-1"
+                className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
                 {showEmbed ? 'Hide Embed' : 'Load In-Browser Preview'}
@@ -222,25 +222,25 @@ export default function ToolDetailModal({
             </div>
 
             {showEmbed ? (
-              <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 relative">
+              <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-300 bg-white relative">
                 <iframe
                   src={tool.url}
                   title={tool.name}
                   className="w-full h-full border-0"
                   sandbox="allow-scripts allow-same-origin"
                 />
-                <div className="absolute bottom-2 right-2 bg-slate-900/90 text-slate-400 text-[10px] px-2 py-1 rounded border border-slate-800">
+                <div className="absolute bottom-2 right-2 bg-white/95 text-slate-600 text-[10px] px-2 py-1 rounded border border-slate-200 shadow-sm">
                   If blocked by website policy, click "Open Website".
                 </div>
               </div>
             ) : (
-              <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Official URL: <strong className="text-slate-300">{tool.url}</strong></span>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-slate-600 font-medium">Official URL: <strong className="text-slate-900">{tool.url}</strong></span>
                 <button
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-teal-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-red-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copied!' : 'Copy Link'}</span>
                 </button>
               </div>
@@ -248,9 +248,9 @@ export default function ToolDetailModal({
           </div>
 
           {/* Social Share Bar */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-800">
-            <span className="text-xs text-slate-400 flex items-center gap-1.5">
-              <Share2 className="w-4 h-4 text-teal-400" />
+          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+            <span className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
+              <Share2 className="w-4 h-4 text-red-600" />
               Share this resource:
             </span>
             <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export default function ToolDetailModal({
                 href={`https://twitter.com/intent/tweet?text=${shareText}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-sky-400 transition-colors"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-sky-600 border border-slate-200 transition-colors"
                 title="Share on Twitter / X"
               >
                 <Twitter className="w-4 h-4" />
@@ -267,14 +267,14 @@ export default function ToolDetailModal({
                 href={`https://api.whatsapp.com/send?text=${shareText}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 transition-colors"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-emerald-600 border border-slate-200 transition-colors"
                 title="Share on WhatsApp"
               >
                 <MessageCircle className="w-4 h-4" />
               </a>
               <button
                 onClick={handleCopyLink}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-teal-400 transition-colors"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-red-600 border border-slate-200 transition-colors"
                 title="Copy URL"
               >
                 <Copy className="w-4 h-4" />
@@ -284,23 +284,23 @@ export default function ToolDetailModal({
 
           {/* Related Tools */}
           {relatedTools.length > 0 && (
-            <div className="space-y-3 pt-4 border-t border-slate-800">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Related Resources</h4>
+            <div className="space-y-3 pt-4 border-t border-slate-200">
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Related Resources</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {relatedTools.slice(0, 2).map((rel) => (
                   <div
                     key={rel.id}
                     onClick={() => onSelectRelated(rel)}
-                    className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-teal-500/40 cursor-pointer transition-all flex items-center gap-3"
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-red-300 hover:bg-red-50/20 cursor-pointer transition-all flex items-center gap-3"
                   >
                     <img
                       src={rel.iconUrl || 'https://via.placeholder.com/40'}
                       alt={rel.name}
-                      className="w-8 h-8 rounded-lg object-contain bg-slate-900 p-1"
+                      className="w-8 h-8 rounded-lg object-contain bg-white border border-slate-200 p-1"
                     />
                     <div className="min-w-0">
-                      <div className="text-xs font-bold text-white truncate">{rel.name}</div>
-                      <div className="text-[11px] text-slate-400 truncate">{rel.description}</div>
+                      <div className="text-xs font-bold text-slate-900 truncate">{rel.name}</div>
+                      <div className="text-[11px] text-slate-500 truncate">{rel.description}</div>
                     </div>
                   </div>
                 ))}

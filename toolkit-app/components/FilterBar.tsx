@@ -67,8 +67,8 @@ export default function FilterBar({
               onClick={() => setSelectedCategory(cat.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                 isActive
-                  ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-[1.02]'
-                  : 'bg-[#11111a] text-slate-300 border border-slate-800/80 hover:border-red-500/30 hover:text-white'
+                  ? 'bg-red-600 text-white shadow-sm shadow-red-600/30 scale-[1.02]'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:border-red-300 hover:text-red-600 hover:bg-red-50/40 shadow-xs'
               }`}
             >
               <span>{ICON_MAP[cat.id] || <Sparkles className="w-3.5 h-3.5" />}</span>
@@ -79,12 +79,12 @@ export default function FilterBar({
       </div>
 
       {/* Sub-Filters: Pricing, Sorting, View Mode */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 pb-1 border-b border-red-950/40">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 pb-1 border-b border-slate-200">
         
         {/* Left Side: Pricing Filters */}
         <div className="flex flex-wrap items-center gap-1 text-xs">
-          <span className="text-slate-400 font-medium mr-1 flex items-center gap-1 text-[11px]">
-            <SlidersHorizontal className="w-3 h-3 text-red-500" />
+          <span className="text-slate-500 font-bold mr-1 flex items-center gap-1 text-[11px]">
+            <SlidersHorizontal className="w-3 h-3 text-red-600" />
             Pricing:
           </span>
           {['all', 'Free', 'Freemium', 'Open Source', 'Paid'].map((tier) => {
@@ -93,10 +93,10 @@ export default function FilterBar({
               <button
                 key={tier}
                 onClick={() => setSelectedPricing(tier)}
-                className={`px-2 py-0.5 rounded-lg transition-colors text-[11px] font-medium ${
+                className={`px-2 py-0.5 rounded-lg transition-colors text-[11px] font-semibold ${
                   isSelected
-                    ? 'bg-red-600/20 text-red-400 border border-red-500/40 font-bold'
-                    : 'bg-[#11111a] text-slate-400 border border-slate-800 hover:text-slate-200'
+                    ? 'bg-red-50 text-red-700 border border-red-300 font-bold shadow-xs'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900 shadow-xs'
                 }`}
               >
                 {tier === 'all' ? 'All' : tier}
@@ -107,7 +107,7 @@ export default function FilterBar({
           {isFiltered && (
             <button
               onClick={onResetFilters}
-              className="ml-1 flex items-center gap-1 text-slate-400 hover:text-red-400 transition-colors px-1.5 py-0.5 text-[11px]"
+              className="ml-1 flex items-center gap-1 text-slate-500 hover:text-red-600 transition-colors px-1.5 py-0.5 text-[11px] font-semibold"
               title="Reset filters"
             >
               <RotateCcw className="w-3 h-3" />
@@ -118,30 +118,30 @@ export default function FilterBar({
 
         {/* Right Side: Sort and View Mode */}
         <div className="flex items-center gap-2.5 text-xs">
-          <span className="text-slate-400 text-[11px] hidden sm:inline">
-            <strong className="text-white">{totalFilteredCount}</strong> tools
+          <span className="text-slate-500 text-[11px] hidden sm:inline">
+            <strong className="text-slate-900">{totalFilteredCount}</strong> tools
           </span>
 
-          <div className="flex items-center gap-1.5 bg-[#11111a] border border-slate-800 rounded-xl px-2 py-1 text-[11px]">
-            <span className="text-slate-400">Sort:</span>
+          <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2 py-1 text-[11px] shadow-xs">
+            <span className="text-slate-500 font-medium">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-transparent text-slate-200 font-semibold focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer"
             >
-              <option value="popular" className="bg-[#11111a] text-white">Most Viewed</option>
-              <option value="clicks" className="bg-[#11111a] text-white">Most Clicked</option>
-              <option value="rating" className="bg-[#11111a] text-white">Top Rated</option>
-              <option value="newest" className="bg-[#11111a] text-white">Recently Added</option>
-              <option value="name" className="bg-[#11111a] text-white">Name (A-Z)</option>
+              <option value="popular" className="bg-white text-slate-900">Most Viewed</option>
+              <option value="clicks" className="bg-white text-slate-900">Most Clicked</option>
+              <option value="rating" className="bg-white text-slate-900">Top Rated</option>
+              <option value="newest" className="bg-white text-slate-900">Recently Added</option>
+              <option value="name" className="bg-white text-slate-900">Name (A-Z)</option>
             </select>
           </div>
 
-          <div className="hidden sm:flex items-center bg-[#11111a] border border-slate-800 rounded-xl p-0.5">
+          <div className="hidden sm:flex items-center bg-white border border-slate-200 rounded-xl p-0.5 shadow-xs">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-[#1f1f2e] text-red-400' : 'text-slate-400 hover:text-white'
+                viewMode === 'grid' ? 'bg-slate-100 text-red-600 font-bold' : 'text-slate-400 hover:text-slate-700'
               }`}
               title="Grid View"
             >
@@ -150,7 +150,7 @@ export default function FilterBar({
             <button
               onClick={() => setViewMode('list')}
               className={`p-1 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-[#1f1f2e] text-red-400' : 'text-slate-400 hover:text-white'
+                viewMode === 'list' ? 'bg-slate-100 text-red-600 font-bold' : 'text-slate-400 hover:text-slate-700'
               }`}
               title="List View"
             >
