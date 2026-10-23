@@ -14,7 +14,7 @@ import {
   List,
   RotateCcw
 } from 'lucide-react';
-import { Category, PricingType } from '../lib/types';
+import { Category } from '../lib/types';
 
 interface FilterBarProps {
   categories: Category[];
@@ -31,15 +31,14 @@ interface FilterBarProps {
   isFiltered: boolean;
 }
 
-// Icon mapper for categories
 const ICON_MAP: Record<string, React.ReactNode> = {
-  all: <Sparkles className="w-4 h-4" />,
-  ai: <Bot className="w-4 h-4" />,
-  dev: <Code className="w-4 h-4" />,
-  design: <Palette className="w-4 h-4" />,
-  productivity: <Zap className="w-4 h-4" />,
-  seo: <TrendingUp className="w-4 h-4" />,
-  utilities: <Wrench className="w-4 h-4" />
+  all: <Sparkles className="w-3.5 h-3.5" />,
+  ai: <Bot className="w-3.5 h-3.5" />,
+  dev: <Code className="w-3.5 h-3.5" />,
+  design: <Palette className="w-3.5 h-3.5" />,
+  productivity: <Zap className="w-3.5 h-3.5" />,
+  seo: <TrendingUp className="w-3.5 h-3.5" />,
+  utilities: <Wrench className="w-3.5 h-3.5" />
 };
 
 export default function FilterBar({
@@ -57,35 +56,35 @@ export default function FilterBar({
   isFiltered
 }: FilterBarProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Category Pills Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none no-scrollbar">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat.id;
           return (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                 isActive
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-lg shadow-teal-500/25 scale-[1.02]'
-                  : 'bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/30 scale-[1.02]'
+                  : 'bg-[#11111a] text-slate-300 border border-slate-800/80 hover:border-red-500/30 hover:text-white'
               }`}
             >
-              <span>{ICON_MAP[cat.id] || <Sparkles className="w-4 h-4" />}</span>
+              <span>{ICON_MAP[cat.id] || <Sparkles className="w-3.5 h-3.5" />}</span>
               <span>{cat.name}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Sub-Filters: Pricing, Sorting, View Mode, Results Count */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 pb-1 border-b border-slate-800/80">
+      {/* Sub-Filters: Pricing, Sorting, View Mode */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 pb-1 border-b border-red-950/40">
         
         {/* Left Side: Pricing Filters */}
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-slate-400 font-medium mr-1 flex items-center gap-1">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
+        <div className="flex flex-wrap items-center gap-1 text-xs">
+          <span className="text-slate-400 font-medium mr-1 flex items-center gap-1 text-[11px]">
+            <SlidersHorizontal className="w-3 h-3 text-red-500" />
             Pricing:
           </span>
           {['all', 'Free', 'Freemium', 'Open Source', 'Paid'].map((tier) => {
@@ -94,13 +93,13 @@ export default function FilterBar({
               <button
                 key={tier}
                 onClick={() => setSelectedPricing(tier)}
-                className={`px-2.5 py-1 rounded-lg transition-colors capitalize ${
+                className={`px-2 py-0.5 rounded-lg transition-colors text-[11px] font-medium ${
                   isSelected
-                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-medium'
-                    : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+                    ? 'bg-red-600/20 text-red-400 border border-red-500/40 font-bold'
+                    : 'bg-[#11111a] text-slate-400 border border-slate-800 hover:text-slate-200'
                 }`}
               >
-                {tier === 'all' ? 'All Tiers' : tier}
+                {tier === 'all' ? 'All' : tier}
               </button>
             );
           })}
@@ -108,8 +107,8 @@ export default function FilterBar({
           {isFiltered && (
             <button
               onClick={onResetFilters}
-              className="ml-2 flex items-center gap-1 text-slate-400 hover:text-rose-400 transition-colors px-2 py-1"
-              title="Reset all filters"
+              className="ml-1 flex items-center gap-1 text-slate-400 hover:text-red-400 transition-colors px-1.5 py-0.5 text-[11px]"
+              title="Reset filters"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -118,47 +117,44 @@ export default function FilterBar({
         </div>
 
         {/* Right Side: Sort and View Mode */}
-        <div className="flex items-center gap-3 text-xs">
-          {/* Result Count */}
-          <span className="text-slate-400 hidden sm:inline">
-            <strong className="text-white">{totalFilteredCount}</strong> {totalFilteredCount === 1 ? 'tool' : 'tools'} found
+        <div className="flex items-center gap-2.5 text-xs">
+          <span className="text-slate-400 text-[11px] hidden sm:inline">
+            <strong className="text-white">{totalFilteredCount}</strong> tools
           </span>
 
-          {/* Sort Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 rounded-xl px-2.5 py-1.5">
+          <div className="flex items-center gap-1.5 bg-[#11111a] border border-slate-800 rounded-xl px-2 py-1 text-[11px]">
             <span className="text-slate-400">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-transparent text-slate-200 font-medium focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-200 font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="popular" className="bg-slate-900 text-white">Most Viewed</option>
-              <option value="clicks" className="bg-slate-900 text-white">Most Clicked</option>
-              <option value="rating" className="bg-slate-900 text-white">Top Rated</option>
-              <option value="newest" className="bg-slate-900 text-white">Recently Added</option>
-              <option value="name" className="bg-slate-900 text-white">Name (A-Z)</option>
+              <option value="popular" className="bg-[#11111a] text-white">Most Viewed</option>
+              <option value="clicks" className="bg-[#11111a] text-white">Most Clicked</option>
+              <option value="rating" className="bg-[#11111a] text-white">Top Rated</option>
+              <option value="newest" className="bg-[#11111a] text-white">Recently Added</option>
+              <option value="name" className="bg-[#11111a] text-white">Name (A-Z)</option>
             </select>
           </div>
 
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-slate-900/80 border border-slate-800 rounded-xl p-1">
+          <div className="hidden sm:flex items-center bg-[#11111a] border border-slate-800 rounded-xl p-0.5">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-slate-800 text-teal-400' : 'text-slate-400 hover:text-white'
+              className={`p-1 rounded-lg transition-colors ${
+                viewMode === 'grid' ? 'bg-[#1f1f2e] text-red-400' : 'text-slate-400 hover:text-white'
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-3.5 h-3.5" />
+              <LayoutGrid className="w-3 h-3" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-slate-800 text-teal-400' : 'text-slate-400 hover:text-white'
+              className={`p-1 rounded-lg transition-colors ${
+                viewMode === 'list' ? 'bg-[#1f1f2e] text-red-400' : 'text-slate-400 hover:text-white'
               }`}
               title="List View"
             >
-              <List className="w-3.5 h-3.5" />
+              <List className="w-3 h-3" />
             </button>
           </div>
         </div>

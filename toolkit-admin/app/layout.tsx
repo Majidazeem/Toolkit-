@@ -3,8 +3,8 @@ import './globals.css';
 import AuthGuard from '../components/AuthGuard';
 
 export const metadata: Metadata = {
-  title: 'Yalla Toolkit - Admin Control Center',
-  description: 'Control panel to manage tools, categories, submissions, and website settings.',
+  title: 'LEGEND MOD - Admin Control Center',
+  description: 'Control panel to manage tools, categories, and website settings for LEGEND MOD TOOLKIT.',
 };
 
 export default function RootLayout({

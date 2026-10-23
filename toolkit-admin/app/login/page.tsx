@@ -75,8 +75,8 @@ export default function LoginPage() {
               <ShieldCheck className="w-7 h-7 text-indigo-400" />
             </div>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Toolkit Admin Portal</h1>
-          <p className="text-xs text-slate-400">Secure management panel for your web toolkit</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">LEGEND MOD Control Center</h1>
+          <p className="text-xs text-slate-400">Official Admin Portal by MA LEGEND</p>
         </div>
 
         {/* Tab switch: Passcode vs Firebase Auth */}
@@ -174,10 +174,10 @@ export default function LoginPage() {
 
         <div className="pt-2 text-center border-t border-slate-800">
           <a
-            href="http://localhost:3000"
+            href={process.env.NEXT_PUBLIC_TOOLKIT_URL || '/'}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-slate-400 hover:text-indigo-400 transition-colors"
+            className="text-xs text-slate-400 hover:text-red-400 transition-colors"
           >
             ← View Public Toolkit Website
           </a>

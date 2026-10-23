@@ -254,14 +254,18 @@ export const INITIAL_TOOLS: Tool[] = [
 ];
 
 export const INITIAL_SETTINGS: SiteSettings = {
-  siteName: 'Yalla Toolkit Hub',
-  tagline: 'Curated directory of the web\'s most powerful tools, websites & AI resources',
-  heroHeadline: 'Discover & Access The Best Web Tools in One Place',
-  heroSubheadline: 'Explore 100+ handpicked tools, AI models, productivity suites, and utilities. Fast, organized, and constantly updated.',
-  announcementText: '🚀 Welcome to Yalla Toolkit! Browse our curated collection or submit your own website.',
+  siteName: 'LEGEND MOD TOOLKIT',
+  tagline: 'Official platform curated by MA LEGEND. Powered by LEGEND MOD.',
+  heroHeadline: 'LEGEND MOD TOOLKIT',
+  heroSubheadline: 'Official tools, mods, websites, and utilities directory curated and maintained by MA LEGEND.',
+  creatorName: 'MA LEGEND',
+  brandTag: 'LEGEND MOD',
+  announcementText: '🔥 Welcome to LEGEND MOD TOOLKIT! Curated with power by MA LEGEND.',
   showAnnouncement: true,
-  contactEmail: 'contact@yallatoolkit.com',
-  twitterUrl: 'https://x.com',
-  githubUrl: 'https://github.com',
-  telegramUrl: 'https://t.me'
+  contactEmail: 'contact@legendmod.com',
+  whatsappUrl: 'https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x',
+  youtubeUrl: 'https://www.youtube.com/@legendmod407',
+  twitterUrl: 'https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x',
+  githubUrl: 'https://www.youtube.com/@legendmod407',
+  telegramUrl: 'https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x'
 };

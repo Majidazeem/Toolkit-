@@ -13,7 +13,7 @@ import {
   where
 } from 'firebase/firestore';
 import { getDatabase, ref, set, get, child, update } from 'firebase/database';
-import { Tool, ToolSubmission, SiteSettings, Category } from './types';
+import { Tool, SiteSettings, Category } from './types';
 import { INITIAL_TOOLS, INITIAL_SETTINGS, INITIAL_CATEGORIES } from './seedData';
 
 // User's Firebase Configuration
@@ -123,29 +123,6 @@ export async function incrementToolClicks(toolId: string): Promise<void> {
         }
       }
     }
-  }
-}
-
-// Submit a new tool proposal for admin review
-export async function submitToolProposal(submission: Omit<ToolSubmission, 'id' | 'status' | 'submittedAt'>): Promise<{ success: boolean; id?: string }> {
-  const newSubmission: ToolSubmission = {
-    ...submission,
-    id: `sub-${Date.now()}`,
-    status: 'pending',
-    submittedAt: new Date().toISOString()
-  };
-
-  try {
-    const docRef = await addDoc(collection(db, 'submissions'), newSubmission);
-    return { success: true, id: docRef.id };
-  } catch (err) {
-    console.warn('Could not write to Firebase submissions collection. Saving to local queue:', err);
-    if (typeof window !== 'undefined') {
-      const existing = JSON.parse(localStorage.getItem('yalla_pending_submissions') || '[]');
-      existing.push(newSubmission);
-      localStorage.setItem('yalla_pending_submissions', JSON.stringify(existing));
-    }
-    return { success: true, id: newSubmission.id };
   }
 }
 

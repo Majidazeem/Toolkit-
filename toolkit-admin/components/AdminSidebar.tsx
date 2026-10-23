@@ -48,9 +48,9 @@ export default function AdminSidebar({ pendingCount = 0 }: SidebarProps) {
           </div>
           <div>
             <h2 className="text-base font-bold text-white tracking-tight leading-none">
-              Toolkit Admin
+              LEGEND MOD
             </h2>
-            <span className="text-[10px] text-indigo-400 font-medium">Control Center</span>
+            <span className="text-[10px] text-red-400 font-medium">Admin by MA LEGEND</span>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export default function AdminSidebar({ pendingCount = 0 }: SidebarProps) {
                 href={item.href}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                    ? 'bg-red-600 text-white shadow-md shadow-red-600/25'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
@@ -87,13 +87,13 @@ export default function AdminSidebar({ pendingCount = 0 }: SidebarProps) {
       {/* Bottom Section */}
       <div className="space-y-2 pt-4 border-t border-slate-800">
         <a
-          href="http://localhost:3000"
+          href={process.env.NEXT_PUBLIC_TOOLKIT_URL || '/'}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-teal-400 hover:bg-slate-800/50 transition-colors"
+          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-red-400 hover:bg-slate-800/50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-teal-400" />
+            <Sparkles className="w-4 h-4 text-red-400" />
             <span>View Public Toolkit</span>
           </div>
           <ExternalLink className="w-3.5 h-3.5 text-slate-500" />

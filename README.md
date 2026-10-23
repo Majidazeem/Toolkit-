@@ -1,69 +1,67 @@
-# Yalla Toolkit & Independent Admin Portal
+# LEGEND MOD TOOLKIT
 
-A modern, fast, and feature-rich **Tools & Websites Directory Platform** built with **Next.js 14**, **Tailwind CSS**, and **Firebase**.
-
-As requested, the project is divided into two **completely independent** applications:
-1. **`toolkit-app/`** - The public-facing toolkit website (Search, categories, filters, bookmarks, instant browser utilities, submission modal).
-2. **`toolkit-admin/`** - Standalone admin dashboard (Tool management CRUD, pending submissions queue, category manager, live analytics, and site settings).
-
----
-
-## 🚀 Quick Start (Local Development)
-
-### 1. Run the Public Toolkit App (Port 3000)
-```bash
-cd toolkit-app
-npm install
-npm run dev
-```
-Open **http://localhost:3000** in your browser.
-
-### 2. Run the Admin Panel (Port 3001)
-In a separate terminal:
-```bash
-cd toolkit-admin
-npm install
-npm run dev
-```
-Open **http://localhost:3001** in your browser.
+> **Official Web Tools & Utilities Platform**  
+> **Created by:** MA LEGEND  
+> **Brand:** LEGEND MOD  
+> **Official WhatsApp Channel:** [Join Here](https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x)  
+> **Official YouTube Channel:** [Subscribe Here](https://www.youtube.com/@legendmod407)
 
 ---
 
-## 🔐 Admin Panel Credentials
+## ⚡ Overview
 
-You can log in to the Admin Panel using either:
-1. **Master Passcode** (Default):
-   - Passcode: `admin123` or `yalla2026`
-2. **Firebase Auth** (Once configured in Firebase Console):
-   - Email: `admin@yallatoolkit.com`
+A powerful, high-performance **Tools & Websites Platform** built with **Next.js 14**, **Tailwind CSS**, and **Firebase**.
+
+The project is structured into two **completely separate, independent** applications:
+
+1. **`toolkit-app/`** - **The Public Platform (`LEGEND MOD TOOLKIT`)**
+   - High-octane Dark Cyber Red & Gold aesthetic.
+   - Fully optimized mobile responsive layout with **2 tools per row** (`grid-cols-2`) on phone screens.
+   - **Zero admin links or submission forms** in the public app to keep it 100% clean and secured.
+   - Live category filtering, instant search, bookmarks, and fast external links.
+   - Built-in official links to MA LEGEND's WhatsApp Channel and YouTube Channel.
+
+2. **`toolkit-admin/`** - **The Standalone Admin Control Center**
+   - Completely separate web app with independent routing and authentication.
+   - Add, edit, feature, and delete tools.
+   - Manage categories and real-time site settings.
+   - 1-click cloud sync with Firebase Firestore.
 
 ---
 
-## ☁️ Deploying to Vercel
+## ☁️ Deploying on Vercel
 
-Both projects are pre-configured with `vercel.json` and optimized for zero-config deployment to Vercel.
+Both apps are pre-configured for seamless zero-config deployment on Vercel:
 
-### Deploying `toolkit-app`:
-1. Push your code to GitHub.
-2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
-3. Select your repository.
-4. Set **Root Directory** to `toolkit-app`.
-5. Click **Deploy**. Your toolkit will be live at `https://your-toolkit.vercel.app`!
+### 1. Deploy the Public Toolkit (`toolkit-app`)
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New Project"**.
+2. Select your repository: **`Toolkit-`**.
+3. Set **Root Directory** to `toolkit-app`.
+4. Click **Deploy**. Your toolkit will be live at `https://your-domain.vercel.app`!
 
-### Deploying `toolkit-admin`:
+### 2. Deploy the Admin Panel (`toolkit-admin`)
 1. In Vercel, click **"Add New Project"** again.
-2. Select the same repository.
+2. Select the same repository: **`Toolkit-`**.
 3. Set **Root Directory** to `toolkit-admin`.
-4. Click **Deploy**. Your admin panel will be live at `https://admin-your-toolkit.vercel.app`!
+4. Click **Deploy**. Your admin panel will be live on its own separate private URL!
+
+---
+
+## 🔐 Admin Panel Access
+
+1. Open your deployed Admin Panel.
+2. Select **Master Passcode** login:
+   - Passcode: `admin123` or `yalla2026`
+3. Or use **Firebase Auth** with your registered admin email.
 
 ---
 
 ## 🗄️ Firebase Database Setup
 
-Your Firebase project (`yalla-9478b`) is pre-wired into both projects.
+Your Firebase project (`yalla-9478b`) is pre-configured.
 
 ### Firestore Security Rules
-Go to **Firebase Console > Firestore Database > Rules** and paste:
+Go to **Firebase Console > Firestore Database > Rules** and set:
 ```javascript
 rules_version = '2';
 service cloud.firestore {
@@ -87,5 +85,13 @@ service cloud.firestore {
 }
 ```
 
-### 1-Click Initial Seed:
-Inside the Admin Panel Overview (`/`), click **"1-Click Push to Firebase"** to automatically populate all 12 initial curated tools and settings into your live cloud database!
+### 1-Click Initial Cloud Sync:
+Inside your Admin Panel Overview (`/`), click **"1-Click Push to Firebase"** to sync all curated tools and settings to your cloud database!
+
+---
+
+## 👑 Credits & Official Community
+- **Platform:** LEGEND MOD TOOLKIT
+- **Developer & Curator:** MA LEGEND
+- **WhatsApp Channel:** [0029VarS46O3QxRtTZO0z60x](https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x)
+- **YouTube Channel:** [@legendmod407](https://www.youtube.com/@legendmod407)

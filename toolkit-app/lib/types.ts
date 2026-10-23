@@ -29,19 +29,6 @@ export interface Category {
   count?: number;
 }
 
-export interface ToolSubmission {
-  id?: string;
-  name: string;
-  url: string;
-  category: string;
-  pricing: PricingType;
-  description: string;
-  iconUrl?: string;
-  submittedBy?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedAt: string;
-}
-
 export interface SiteSettings {
   siteName: string;
   tagline: string;
@@ -49,8 +36,10 @@ export interface SiteSettings {
   heroSubheadline: string;
   announcementText?: string;
   showAnnouncement: boolean;
+  authorName: string;
+  brandTag: string;
+  whatsappUrl?: string;
+  youtubeUrl?: string;
   contactEmail?: string;
-  twitterUrl?: string;
-  githubUrl?: string;
   telegramUrl?: string;
 }

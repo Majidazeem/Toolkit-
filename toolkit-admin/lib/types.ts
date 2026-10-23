@@ -47,9 +47,13 @@ export interface SiteSettings {
   tagline: string;
   heroHeadline: string;
   heroSubheadline: string;
+  creatorName?: string;
+  brandTag?: string;
   announcementText?: string;
   showAnnouncement: boolean;
   contactEmail?: string;
+  whatsappUrl?: string;
+  youtubeUrl?: string;
   twitterUrl?: string;
   githubUrl?: string;
   telegramUrl?: string;
