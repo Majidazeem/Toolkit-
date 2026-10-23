@@ -43,3 +43,9 @@ export interface SiteSettings {
   contactEmail?: string;
   telegramUrl?: string;
 }
+
+export interface SiteTraffic {
+  totalViews: number;
+  todayViews: number;
+  liveVisitors: number;
+}

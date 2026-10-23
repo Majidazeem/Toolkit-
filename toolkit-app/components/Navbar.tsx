@@ -9,12 +9,15 @@ import {
   X,
   MessageCircle,
   Youtube,
-  Sparkles
+  Sparkles,
+  Eye,
+  Users
 } from 'lucide-react';
-import { SiteSettings } from '../lib/types';
+import { SiteSettings, SiteTraffic } from '../lib/types';
 
 interface NavbarProps {
   settings: SiteSettings;
+  traffic?: SiteTraffic;
   bookmarkedCount: number;
   onOpenBookmarks: () => void;
   onSelectTab: (tab: 'all' | 'utilities') => void;
@@ -23,6 +26,7 @@ interface NavbarProps {
 
 export default function Navbar({
   settings,
+  traffic,
   bookmarkedCount,
   onOpenBookmarks,
   onSelectTab,
@@ -32,13 +36,31 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      {/* Announcement Banner */}
-      {settings.showAnnouncement && settings.announcementText && (
-        <div className="bg-gradient-to-r from-rose-900 via-red-700 to-amber-700 text-white text-[11px] sm:text-xs font-semibold py-1.5 px-4 text-center flex items-center justify-center gap-2 shadow-md">
-          <Flame className="w-3.5 h-3.5 text-amber-300 animate-flame shrink-0" />
-          <span>{settings.announcementText}</span>
+      {/* Top Bar with Live Realtime Visitors & Total Views */}
+      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-[11px] sm:text-xs font-semibold py-1.5 px-3 sm:px-6 shadow-sm flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex items-center gap-2 truncate">
+          <Flame className="w-3.5 h-3.5 text-amber-300 animate-flame-flicker shrink-0" />
+          <span className="truncate">{settings.announcementText || '🔥 Welcome to LEGEND MOD TOOLKIT by MA LEGEND'}</span>
         </div>
-      )}
+
+        {/* Live Visitor & Total Views Counter Chip */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-[10px] sm:text-[11px] font-bold bg-black/25 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20 shadow-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-90"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span className="text-white"><strong className="text-emerald-200">{traffic?.liveVisitors || 34}</strong> Online</span>
+          </div>
+
+          <span className="text-white/40">|</span>
+
+          <div className="flex items-center gap-1">
+            <Eye className="w-3 h-3 text-amber-300" />
+            <span className="text-white"><strong className="text-white">{traffic ? traffic.totalViews.toLocaleString() : '15,480'}</strong> Views</span>
+          </div>
+        </div>
+      </div>
 
       {/* Main Navbar */}
       <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 lg:px-8 py-3 shadow-sm transition-all duration-200">

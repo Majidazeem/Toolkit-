@@ -66,3 +66,70 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #ef4444;
 }
+
+/* Animations & Eye-Catching Effects */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes flameFlicker {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+  }
+  50% {
+    transform: scale(1.12) rotate(2deg);
+    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.8));
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-150%);
+  }
+  50%, 100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes pulseBorder {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.8);
+  }
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.animate-flame-flicker {
+  animation: flameFlicker 1.8s ease-in-out infinite;
+}
+
+.animate-pulse-border {
+  animation: pulseBorder 2s ease-in-out infinite;
+}
+
+.shimmer-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmerSweep 3s infinite;
+}

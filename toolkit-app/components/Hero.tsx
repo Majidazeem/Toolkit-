@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Search, Flame, X, MessageCircle, Youtube, Shield, Sparkles } from 'lucide-react';
-import { SiteSettings } from '../lib/types';
+import { Search, Flame, X, MessageCircle, Youtube, Eye, Users, Zap, Sparkles } from 'lucide-react';
+import { SiteSettings, SiteTraffic } from '../lib/types';
 
 interface HeroProps {
   settings: SiteSettings;
+  traffic?: SiteTraffic;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedTag: string | null;
@@ -17,6 +18,7 @@ const POPULAR_TAGS = ['AI', 'Coding', 'Design', 'Next.js', 'Postgres', 'Open Sou
 
 export default function Hero({
   settings,
+  traffic,
   searchQuery,
   setSearchQuery,
   selectedTag,
@@ -38,22 +40,52 @@ export default function Hero({
   }, []);
 
   return (
-    <div className="relative pt-8 pb-12 sm:pt-12 sm:pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-red-50/40 via-white to-slate-50">
-      {/* Background Soft Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none overflow-hidden opacity-15">
-        <div className="absolute top-6 left-1/4 w-96 h-96 bg-red-400 rounded-full blur-[140px]" />
-        <div className="absolute top-16 right-1/4 w-96 h-96 bg-amber-400 rounded-full blur-[140px]" />
+    <div className="relative pt-6 pb-10 sm:pt-10 sm:pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-red-50/50 via-white to-slate-50">
+      {/* Background Soft Glow with floating effect */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none overflow-hidden opacity-20">
+        <div className="absolute top-4 left-1/4 w-96 h-96 bg-red-400 rounded-full blur-[140px] animate-float" />
+        <div className="absolute top-12 right-1/4 w-96 h-96 bg-amber-400 rounded-full blur-[140px] animate-float" style={{ animationDelay: '1.5s' }} />
       </div>
 
-      <div className="relative max-w-4xl mx-auto text-center space-y-5">
+      <div className="relative max-w-4xl mx-auto text-center space-y-4 sm:space-y-5">
         
-        {/* Creator Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-200 text-slate-800 text-xs font-semibold shadow-xs">
-          <Flame className="w-3.5 h-3.5 text-red-600 fill-red-600 animate-flame" />
-          <span>Curated by <strong className="text-red-600 font-extrabold">{settings.authorName || 'MA LEGEND'}</strong></span>
-          <span className="text-[10px] uppercase font-black px-1.5 py-0.2 rounded bg-red-600 text-white">
-            {settings.brandTag || 'LEGEND MOD'}
-          </span>
+        {/* Creator Badge & Live Traffic Pill */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-200 text-slate-800 text-xs font-semibold shadow-xs hover:border-red-400 transition-colors animate-pulse-border">
+            <Flame className="w-3.5 h-3.5 text-red-600 fill-red-600 animate-flame-flicker" />
+            <span>Curated by <strong className="text-red-600 font-extrabold">{settings.authorName || 'MA LEGEND'}</strong></span>
+            <span className="text-[10px] uppercase font-black px-1.5 py-0.5 rounded bg-red-600 text-white shadow-xs">
+              {settings.brandTag || 'LEGEND MOD'}
+            </span>
+          </div>
+
+          {/* Real Live Views & Online Visitors Hero Capsule */}
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs text-xs font-bold text-slate-700 hover:border-slate-300 transition-colors">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-slate-900 font-extrabold">{traffic?.liveVisitors || 34}</span>
+              <span className="text-slate-500 font-medium text-[11px]">Online</span>
+            </div>
+
+            <span className="text-slate-200">|</span>
+
+            <div className="flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 text-red-600 shrink-0" />
+              <span className="text-slate-900 font-extrabold">{traffic ? traffic.totalViews.toLocaleString() : '15,480'}</span>
+              <span className="text-slate-500 font-medium text-[11px]">Views</span>
+            </div>
+
+            <span className="text-slate-200">|</span>
+
+            <div className="flex items-center gap-1">
+              <Zap className="w-3 h-3 text-amber-500 shrink-0 fill-amber-500" />
+              <span className="text-slate-900 font-extrabold">{totalTools}</span>
+              <span className="text-slate-500 font-medium text-[11px]">Tools</span>
+            </div>
+          </div>
         </div>
 
         {/* Main Headline */}

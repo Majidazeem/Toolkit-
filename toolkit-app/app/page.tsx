@@ -9,14 +9,16 @@ import ToolDetailModal from '../components/ToolDetailModal';
 import BookmarksModal from '../components/BookmarksModal';
 import BuiltInTools from '../components/BuiltInTools';
 import Footer from '../components/Footer';
-import { Tool, Category, SiteSettings } from '../lib/types';
+import { Tool, Category, SiteSettings, SiteTraffic } from '../lib/types';
 import { 
   getPublishedTools, 
   getSiteSettings, 
   incrementToolClicks, 
   incrementToolViews, 
   getSavedBookmarks, 
-  toggleSavedBookmark 
+  toggleSavedBookmark,
+  recordAndGetSiteViews,
+  INITIAL_TRAFFIC
 } from '../lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_SETTINGS, INITIAL_TOOLS } from '../lib/seedData';
 import { Frown, Wrench } from 'lucide-react';
@@ -25,6 +27,7 @@ export default function HomePage() {
   const [tools, setTools] = useState<Tool[]>(INITIAL_TOOLS);
   const [settings, setSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
   const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const [traffic, setTraffic] = useState<SiteTraffic>(INITIAL_TRAFFIC);
   const [loading, setLoading] = useState(true);
 
   // Active navigation tab: 'all' or 'utilities'
@@ -49,12 +52,14 @@ export default function HomePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [toolsData, settingsData] = await Promise.all([
+        const [toolsData, settingsData, trafficData] = await Promise.all([
           getPublishedTools(),
-          getSiteSettings()
+          getSiteSettings(),
+          recordAndGetSiteViews()
         ]);
         if (toolsData && toolsData.length > 0) setTools(toolsData);
         if (settingsData) setSettings(settingsData as SiteSettings);
+        if (trafficData) setTraffic(trafficData);
       } catch (err) {
         console.error('Error fetching initial data:', err);
       } finally {
@@ -153,6 +158,7 @@ export default function HomePage() {
       {/* Top Navigation */}
       <Navbar
         settings={settings}
+        traffic={traffic}
         bookmarkedCount={bookmarkedIds.length}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onSelectTab={setActiveTab}
@@ -166,6 +172,7 @@ export default function HomePage() {
             {/* Hero Section */}
             <Hero
               settings={settings}
+              traffic={traffic}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               selectedTag={selectedTag}
