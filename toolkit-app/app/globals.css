@@ -208,9 +208,8 @@ body {
 /* Modern Distinct Tool Card Styling */
 .tool-card-modern {
   position: relative;
-  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
-  border: 1px solid #e5e7eb;
-  border-top: 3px solid #ef4444;
+  background-color: #F5F3FF;
+  border: 1.5px solid #7C3AED;
   border-radius: 1rem;
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
@@ -218,9 +217,8 @@ body {
 
 .tool-card-modern:hover {
   transform: translateY(-5px);
-  border-color: #f87171;
-  border-top-color: #dc2626;
-  box-shadow: 0 16px 30px -8px rgba(239, 68, 68, 0.16), 0 8px 12px -4px rgba(0, 0, 0, 0.04);
+  border-color: #7C3AED;
+  box-shadow: 0 14px 28px -6px rgba(34, 211, 238, 0.4), 0 0 20px 2px rgba(34, 211, 238, 0.5);
 }
 
 .tool-card-modern::after {

@@ -70,7 +70,7 @@ export default function ToolCard({
             <div className="flex items-center gap-1.5 flex-wrap">
               <h3 
                 onClick={() => onOpenDetails(tool)}
-                className="text-sm sm:text-base font-black text-slate-900 group-hover:text-red-600 transition-colors cursor-pointer truncate"
+                className="text-sm sm:text-base font-black text-[#1F2937] hover:text-[#7C3AED] transition-colors cursor-pointer truncate"
               >
                 {tool.name}
               </h3>
@@ -79,16 +79,16 @@ export default function ToolCard({
                 {tool.pricing}
               </span>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-600 line-clamp-1 mt-0.5 max-w-xl font-medium">
+            <p className="text-[11px] sm:text-xs text-[#64748B] line-clamp-1 mt-0.5 max-w-xl font-medium">
               {tool.description}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-          <div className="flex items-center gap-2.5 text-[11px] text-slate-500 font-bold">
-            <span className="flex items-center gap-1"><Eye className="w-3 h-3 text-slate-400" /> {tool.views}</span>
-            <span className="flex items-center gap-1"><MousePointerClick className="w-3 h-3 text-red-600" /> {tool.clicks}</span>
+        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-purple-200/50">
+          <div className="flex items-center gap-2.5 text-[11px] font-bold">
+            <span className="flex items-center gap-1 text-[#0891B2]"><Eye className="w-3 h-3 text-[#0891B2]" /> {tool.views}</span>
+            <span className="flex items-center gap-1 text-slate-500"><MousePointerClick className="w-3 h-3 text-red-600" /> {tool.clicks}</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -162,7 +162,7 @@ export default function ToolCard({
           <div className="flex items-center gap-1">
             <h3 
               onClick={() => onOpenDetails(tool)}
-              className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors cursor-pointer truncate"
+              className="text-xs sm:text-sm font-black text-[#1F2937] hover:text-[#7C3AED] transition-colors cursor-pointer truncate"
             >
               {tool.name}
             </h3>
@@ -179,16 +179,16 @@ export default function ToolCard({
         </div>
 
         {/* Short Description */}
-        <p className="text-[10px] sm:text-xs text-slate-600 line-clamp-2 leading-relaxed mb-3 font-medium">
+        <p className="text-[10px] sm:text-xs text-[#64748B] line-clamp-2 leading-relaxed mb-3 font-medium">
           {tool.description}
         </p>
       </div>
 
       {/* Footer Actions */}
-      <div className="pt-2 border-t border-slate-200/90 space-y-2 mt-auto">
-        <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold">
-          <span className="flex items-center gap-1">
-            <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400" />
+      <div className="pt-2 border-t border-purple-200/50 space-y-2 mt-auto">
+        <div className="flex items-center justify-between text-[10px] font-bold">
+          <span className="flex items-center gap-1 text-[#0891B2]">
+            <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#0891B2]" />
             {tool.views}
           </span>
           <span className="flex items-center gap-0.5 text-amber-600 font-extrabold">
