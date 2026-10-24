@@ -12,7 +12,19 @@ import {
   query,
   where
 } from 'firebase/firestore';
-import { getDatabase, ref, set, get, child, update } from 'firebase/database';
+import { 
+  getDatabase, 
+  ref, 
+  set, 
+  get, 
+  child, 
+  update, 
+  onValue, 
+  onDisconnect, 
+  push, 
+  increment as rtdbIncrement, 
+  remove 
+} from 'firebase/database';
 import { Tool, SiteSettings, Category, SiteTraffic } from './types';
 import { INITIAL_TOOLS, INITIAL_SETTINGS, INITIAL_CATEGORIES } from './seedData';
 
@@ -168,74 +180,139 @@ export function toggleSavedBookmark(toolId: string): string[] {
   return updated;
 }
 
-// Real Site Traffic & Visitor Counter (Realtime + Firestore + Cache)
-const LOCAL_STORAGE_KEY_SITE_VIEWS = 'legend_mod_site_views_count';
-const SESSION_STORAGE_KEY_VISITED = 'legend_mod_session_visited';
+// Genuine Real Site Traffic & Live Presence (Firebase Realtime Database)
+const LOCAL_STORAGE_KEY_SITE_VIEWS = 'legend_mod_real_views';
+const SESSION_STORAGE_KEY_VISITED = 'legend_mod_real_session';
 
 export const INITIAL_TRAFFIC: SiteTraffic = {
-  totalViews: 15480,
-  todayViews: 1240,
-  liveVisitors: 34
+  totalViews: 1,
+  todayViews: 1,
+  liveVisitors: 1
 };
 
+// Increment view and fetch current real traffic from Firebase Realtime Database
 export async function recordAndGetSiteViews(): Promise<SiteTraffic> {
-  const baseViews = 15480;
-  let currentViews = baseViews;
+  let views = 1;
+  let online = 1;
 
   if (typeof window !== 'undefined') {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY_SITE_VIEWS);
     if (cached) {
-      currentViews = Math.max(Number(cached), baseViews);
+      views = Math.max(1, parseInt(cached, 10));
     }
+  }
 
+  try {
+    const statsRef = ref(rtdb, 'site_stats');
+    
     // Increment once per browser session
-    const hasVisitedThisSession = sessionStorage.getItem(SESSION_STORAGE_KEY_VISITED);
-    if (!hasVisitedThisSession) {
-      currentViews += 1;
-      localStorage.setItem(LOCAL_STORAGE_KEY_SITE_VIEWS, currentViews.toString());
+    if (typeof window !== 'undefined' && !sessionStorage.getItem(SESSION_STORAGE_KEY_VISITED)) {
+      await update(statsRef, {
+        totalViews: rtdbIncrement(1),
+        lastVisitAt: new Date().toISOString()
+      });
       sessionStorage.setItem(SESSION_STORAGE_KEY_VISITED, 'true');
     }
-  }
 
-  // Attempt sync with Firestore
-  try {
-    const statsDocRef = doc(db, 'stats', 'traffic');
-    const docSnap = await getDoc(statsDocRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const firestoreViews = data?.totalViews || baseViews;
-
-      if (typeof window !== 'undefined' && !sessionStorage.getItem('legend_mod_synced_traffic')) {
-        await setDoc(statsDocRef, {
-          totalViews: increment(1),
-          lastVisitAt: new Date().toISOString(),
-          siteName: 'LEGEND MOD TOOLKIT'
-        }, { merge: true });
-        sessionStorage.setItem('legend_mod_synced_traffic', 'true');
-        currentViews = Math.max(currentViews, firestoreViews + 1);
-      } else {
-        currentViews = Math.max(currentViews, firestoreViews);
+    const snap = await get(statsRef);
+    if (snap.exists()) {
+      const data = snap.val();
+      views = data?.totalViews || views;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_SITE_VIEWS, views.toString());
       }
-    } else {
-      await setDoc(statsDocRef, {
-        totalViews: currentViews,
-        lastVisitAt: new Date().toISOString(),
-        siteName: 'LEGEND MOD TOOLKIT'
-      }, { merge: true });
     }
   } catch (err) {
-    // If firestore rules or connection not yet ready, graceful local fallback
+    console.warn('Realtime database sync warning:', err);
   }
 
-  // Dynamic realistic live online visitors calculation (oscillates 26-48)
-  const minuteSeed = Math.floor(Date.now() / 60000);
-  const pseudoRandomOffset = (minuteSeed * 7) % 23;
-  const liveVisitors = 25 + pseudoRandomOffset;
-
   return {
-    totalViews: currentViews,
-    todayViews: Math.floor(currentViews * 0.08) + 12,
-    liveVisitors
+    totalViews: views,
+    todayViews: Math.max(1, views),
+    liveVisitors: online
+  };
+}
+
+// Live realtime listener for instantaneous traffic & presence updates
+export function subscribeToRealtimeTraffic(
+  onUpdate: (traffic: SiteTraffic) => void
+): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  let currentViews = 1;
+  let currentOnline = 1;
+  let myPresenceRef: any = null;
+
+  // 1. Establish Real Presence
+  try {
+    const sessionId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    myPresenceRef = ref(rtdb, `online_presence/${sessionId}`);
+    
+    // Remove session when browser tab closes or disconnects
+    onDisconnect(myPresenceRef).remove().catch(() => {});
+    set(myPresenceRef, { 
+      joinedAt: Date.now(),
+      userAgent: navigator.userAgent.substring(0, 40)
+    }).catch(() => {});
+  } catch (e) {
+    // Graceful fallback
+  }
+
+  // 2. Listen to active online presence
+  const presenceRef = ref(rtdb, 'online_presence');
+  const unsubscribePresence = onValue(presenceRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const count = Object.keys(snapshot.val()).length;
+      currentOnline = Math.max(1, count);
+    } else {
+      currentOnline = 1;
+    }
+    onUpdate({
+      totalViews: currentViews,
+      todayViews: Math.max(1, currentViews),
+      liveVisitors: currentOnline
+    });
+  }, (err) => {
+    console.warn('Presence listener notice:', err);
+  });
+
+  // 3. Listen to total views updates
+  const statsRef = ref(rtdb, 'site_stats');
+  const unsubscribeStats = onValue(statsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      if (typeof data?.totalViews === 'number') {
+        currentViews = Math.max(1, data.totalViews);
+        localStorage.setItem(LOCAL_STORAGE_KEY_SITE_VIEWS, currentViews.toString());
+      }
+    }
+    onUpdate({
+      totalViews: currentViews,
+      todayViews: Math.max(1, currentViews),
+      liveVisitors: currentOnline
+    });
+  }, (err) => {
+    console.warn('Stats listener notice:', err);
+  });
+
+  // Increment view once if not yet counted in this session
+  if (!sessionStorage.getItem(SESSION_STORAGE_KEY_VISITED)) {
+    update(statsRef, {
+      totalViews: rtdbIncrement(1),
+      lastVisitAt: new Date().toISOString()
+    }).then(() => {
+      sessionStorage.setItem(SESSION_STORAGE_KEY_VISITED, 'true');
+    }).catch(() => {});
+  }
+
+  // Cleanup on unmount
+  return () => {
+    try {
+      unsubscribePresence();
+      unsubscribeStats();
+      if (myPresenceRef) {
+        remove(myPresenceRef).catch(() => {});
+      }
+    } catch (e) {}
   };
 }

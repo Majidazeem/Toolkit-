@@ -73,18 +73,27 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(1.5deg);
   }
 }
 
 @keyframes flameFlicker {
   0%, 100% {
     transform: scale(1) rotate(-1deg);
-    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7));
   }
   50% {
-    transform: scale(1.12) rotate(2deg);
-    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.8));
+    transform: scale(1.15) rotate(2deg);
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.95));
   }
 }
 
@@ -99,15 +108,57 @@ body {
 
 @keyframes pulseBorder {
   0%, 100% {
-    border-color: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
   }
   50% {
-    border-color: rgba(239, 68, 68, 0.8);
+    border-color: rgba(239, 68, 68, 0.9);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes radarWave {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
   }
 }
 
 .animate-float {
   animation: float 3.5s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatSlow 5s ease-in-out infinite reverse;
 }
 
 .animate-flame-flicker {
@@ -116,6 +167,26 @@ body {
 
 .animate-pulse-border {
   animation: pulseBorder 2s ease-in-out infinite;
+}
+
+.animate-radar-wave {
+  animation: radarWave 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animated-gradient-border {
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #ec4899, #dc2626, #f59e0b);
+  background-size: 300% 300%;
+  animation: gradientShift 4s ease infinite;
 }
 
 .shimmer-badge {
@@ -130,6 +201,43 @@ body {
   left: 0;
   width: 60%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
   animation: shimmerSweep 3s infinite;
 }
+
+/* Modern Distinct Tool Card Styling */
+.tool-card-modern {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+  border: 1px solid #e5e7eb;
+  border-top: 3px solid #ef4444;
+  border-radius: 1rem;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.tool-card-modern:hover {
+  transform: translateY(-5px);
+  border-color: #f87171;
+  border-top-color: #dc2626;
+  box-shadow: 0 16px 30px -8px rgba(239, 68, 68, 0.16), 0 8px 12px -4px rgba(0, 0, 0, 0.04);
+}
+
+.tool-card-modern::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.tool-card-modern:hover::after {
+  left: 220%;
+  transition: all 0.75s ease-in-out;
+}
+

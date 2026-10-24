@@ -18,6 +18,7 @@ import {
   getSavedBookmarks, 
   toggleSavedBookmark,
   recordAndGetSiteViews,
+  subscribeToRealtimeTraffic,
   INITIAL_TRAFFIC
 } from '../lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_SETTINGS, INITIAL_TOOLS } from '../lib/seedData';
@@ -52,14 +53,12 @@ export default function HomePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [toolsData, settingsData, trafficData] = await Promise.all([
+        const [toolsData, settingsData] = await Promise.all([
           getPublishedTools(),
-          getSiteSettings(),
-          recordAndGetSiteViews()
+          getSiteSettings()
         ]);
         if (toolsData && toolsData.length > 0) setTools(toolsData);
         if (settingsData) setSettings(settingsData as SiteSettings);
-        if (trafficData) setTraffic(trafficData);
       } catch (err) {
         console.error('Error fetching initial data:', err);
       } finally {
@@ -69,6 +68,15 @@ export default function HomePage() {
 
     setBookmarkedIds(getSavedBookmarks());
     loadData();
+
+    // Subscribe to live Realtime Database views & presence
+    const unsubscribeTraffic = subscribeToRealtimeTraffic((liveTraffic) => {
+      setTraffic(liveTraffic);
+    });
+
+    return () => {
+      unsubscribeTraffic();
+    };
   }, []);
 
   // Handle bookmark toggle

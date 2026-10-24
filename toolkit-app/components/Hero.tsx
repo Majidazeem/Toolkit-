@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Search, Flame, X, MessageCircle, Youtube, Eye, Users, Zap, Sparkles } from 'lucide-react';
+import { Search, Flame, X, MessageCircle, Youtube, Eye, Users, Zap, Sparkles, Shield, Rocket } from 'lucide-react';
 import { SiteSettings, SiteTraffic } from '../lib/types';
+import AnimatedCounter from './AnimatedCounter';
 
 interface HeroProps {
   settings: SiteSettings;
@@ -42,13 +43,28 @@ export default function Hero({
   return (
     <div className="relative pt-6 pb-10 sm:pt-10 sm:pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-red-50/50 via-white to-slate-50">
       {/* Background Soft Glow with floating effect */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none overflow-hidden opacity-20">
-        <div className="absolute top-4 left-1/4 w-96 h-96 bg-red-400 rounded-full blur-[140px] animate-float" />
-        <div className="absolute top-12 right-1/4 w-96 h-96 bg-amber-400 rounded-full blur-[140px] animate-float" style={{ animationDelay: '1.5s' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none overflow-hidden opacity-30">
+        <div className="absolute top-4 left-1/4 w-96 h-96 bg-red-400 rounded-full blur-[130px] animate-float" />
+        <div className="absolute top-12 right-1/4 w-96 h-96 bg-amber-400 rounded-full blur-[130px] animate-float" style={{ animationDelay: '1.5s' }} />
       </div>
 
       <div className="relative max-w-4xl mx-auto text-center space-y-4 sm:space-y-5">
         
+        {/* Floating Mini Badges (Visible Animation) */}
+        <div className="hidden lg:block absolute -left-12 top-6 pointer-events-none animate-float-slow">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 border border-slate-200 shadow-lg text-[11px] font-extrabold text-slate-800">
+            <span className="p-1 rounded-lg bg-red-100 text-red-600">⚡</span>
+            <span>100% Free Tools</span>
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute -right-12 top-10 pointer-events-none animate-float-reverse">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 border border-slate-200 shadow-lg text-[11px] font-extrabold text-slate-800">
+            <span className="p-1 rounded-lg bg-amber-100 text-amber-600">🛡️</span>
+            <span>Verified by MA LEGEND</span>
+          </div>
+        </div>
+
         {/* Creator Badge & Live Traffic Pill */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-200 text-slate-800 text-xs font-semibold shadow-xs hover:border-red-400 transition-colors animate-pulse-border">
@@ -59,30 +75,36 @@ export default function Hero({
             </span>
           </div>
 
-          {/* Real Live Views & Online Visitors Hero Capsule */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs text-xs font-bold text-slate-700 hover:border-slate-300 transition-colors">
-            <div className="flex items-center gap-1.5">
+          {/* Real Live Views & Online Visitors Hero Capsule with Animated Counter */}
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-bold text-slate-700 hover:border-red-300 transition-colors">
+            {/* Real Live Online Active Users */}
+            <div className="flex items-center gap-1.5" title="Genuine active visitors">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="animate-radar-wave absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
-              <span className="text-slate-900 font-extrabold">{traffic?.liveVisitors || 34}</span>
+              <span className="text-slate-900 font-black">
+                <AnimatedCounter value={traffic?.liveVisitors || 1} duration={800} />
+              </span>
               <span className="text-slate-500 font-medium text-[11px]">Online</span>
             </div>
 
             <span className="text-slate-200">|</span>
 
-            <div className="flex items-center gap-1.5">
+            {/* Real Total Views */}
+            <div className="flex items-center gap-1.5" title="Genuine database view count">
               <Eye className="w-3.5 h-3.5 text-red-600 shrink-0" />
-              <span className="text-slate-900 font-extrabold">{traffic ? traffic.totalViews.toLocaleString() : '15,480'}</span>
-              <span className="text-slate-500 font-medium text-[11px]">Views</span>
+              <span className="text-slate-900 font-black">
+                <AnimatedCounter value={traffic?.totalViews || 1} duration={1200} />
+              </span>
+              <span className="text-slate-500 font-medium text-[11px]">Real Views</span>
             </div>
 
             <span className="text-slate-200">|</span>
 
             <div className="flex items-center gap-1">
               <Zap className="w-3 h-3 text-amber-500 shrink-0 fill-amber-500" />
-              <span className="text-slate-900 font-extrabold">{totalTools}</span>
+              <span className="text-slate-900 font-black">{totalTools}</span>
               <span className="text-slate-500 font-medium text-[11px]">Tools</span>
             </div>
           </div>
@@ -125,11 +147,11 @@ export default function Hero({
           )}
         </div>
 
-        {/* Search Input Bar */}
+        {/* Search Input Bar with Moving Animated Gradient Border */}
         <div className="max-w-2xl mx-auto pt-3">
-          <div className="relative">
-            <div className="relative flex items-center bg-white border-2 border-slate-200 focus-within:border-red-500 rounded-2xl px-4 py-3 shadow-sm focus-within:shadow-md transition-all">
-              <Search className="w-4 h-4 text-red-600 shrink-0 mr-3" />
+          <div className="animated-gradient-border p-[2px] rounded-2xl shadow-md hover:shadow-xl hover:shadow-red-500/20 transition-all">
+            <div className="relative flex items-center bg-white rounded-[14px] px-4 py-3">
+              <Search className="w-4 h-4 text-red-600 shrink-0 mr-3 animate-pulse" />
               
               <input
                 ref={searchInputRef}

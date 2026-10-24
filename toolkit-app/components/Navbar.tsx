@@ -14,6 +14,7 @@ import {
   Users
 } from 'lucide-react';
 import { SiteSettings, SiteTraffic } from '../lib/types';
+import AnimatedCounter from './AnimatedCounter';
 
 interface NavbarProps {
   settings: SiteSettings;
@@ -35,29 +36,69 @@ export default function Navbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full">
-      {/* Top Bar with Live Realtime Visitors & Total Views */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-[11px] sm:text-xs font-semibold py-1.5 px-3 sm:px-6 shadow-sm flex items-center justify-between gap-2 overflow-hidden">
-        <div className="flex items-center gap-2 truncate">
-          <Flame className="w-3.5 h-3.5 text-amber-300 animate-flame-flicker shrink-0" />
-          <span className="truncate">{settings.announcementText || '🔥 Welcome to LEGEND MOD TOOLKIT by MA LEGEND'}</span>
+    <header className="sticky top-0 z-40 w-full shadow-sm">
+      {/* Dynamic Animated Marquee & Real Live Traffic Header */}
+      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white text-[11px] sm:text-xs font-bold py-1.5 px-3 sm:px-6 shadow-xs flex items-center justify-between gap-3 overflow-hidden border-b border-red-700/30">
+        
+        {/* Animated Marquee Ticker */}
+        <div className="flex-1 overflow-hidden relative mr-2">
+          <div className="animate-marquee whitespace-nowrap flex items-center gap-6 text-[10px] sm:text-xs uppercase tracking-wider text-white/95">
+            <span className="flex items-center gap-1.5 font-black text-amber-300">
+              <Flame className="w-3.5 h-3.5 fill-amber-300 animate-flame-flicker" />
+              LEGEND MOD TOOLKIT
+            </span>
+            <span className="text-white/60">•</span>
+            <span className="text-white font-extrabold">👑 Curated by MA LEGEND</span>
+            <span className="text-white/60">•</span>
+            <span className="text-emerald-300 font-extrabold flex items-center gap-1">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              100% Real Live Analytics
+            </span>
+            <span className="text-white/60">•</span>
+            <span className="text-amber-200">⚡ Zero-Install Instant Web Power Tools</span>
+            <span className="text-white/60">•</span>
+            <span className="text-white font-bold">🚀 100% Free Resources & AI Models</span>
+            <span className="text-white/60">•</span>
+            <span className="text-amber-300">💬 Join Official WhatsApp & YouTube</span>
+
+            {/* Repeat for seamless continuous loop */}
+            <span className="flex items-center gap-1.5 font-black text-amber-300">
+              <Flame className="w-3.5 h-3.5 fill-amber-300 animate-flame-flicker" />
+              LEGEND MOD TOOLKIT
+            </span>
+            <span className="text-white/60">•</span>
+            <span className="text-white font-extrabold">👑 Curated by MA LEGEND</span>
+            <span className="text-white/60">•</span>
+            <span className="text-emerald-300 font-extrabold flex items-center gap-1">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              100% Real Live Analytics
+            </span>
+          </div>
         </div>
 
-        {/* Live Visitor & Total Views Counter Chip */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-[10px] sm:text-[11px] font-bold bg-black/25 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/20 shadow-xs">
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-90"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+        {/* Real Live Online Active Users & Real Views Capsule */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 text-[10px] sm:text-[11px] font-black bg-black/35 backdrop-blur-md px-3 py-1 rounded-full border border-white/30 shadow-md">
+          {/* Real Live Active Online Visitors */}
+          <div className="flex items-center gap-1.5" title="Verified real users currently online">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-radar-wave absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
-            <span className="text-white"><strong className="text-emerald-200">{traffic?.liveVisitors || 34}</strong> Online</span>
+            <span className="text-emerald-300">
+              <AnimatedCounter value={traffic?.liveVisitors || 1} duration={800} />
+            </span>
+            <span className="text-white/90 text-[10px] font-semibold">Online</span>
           </div>
 
-          <span className="text-white/40">|</span>
+          <span className="text-white/30">|</span>
 
-          <div className="flex items-center gap-1">
-            <Eye className="w-3 h-3 text-amber-300" />
-            <span className="text-white"><strong className="text-white">{traffic ? traffic.totalViews.toLocaleString() : '15,480'}</strong> Views</span>
+          {/* Real Total Views */}
+          <div className="flex items-center gap-1.5" title="Real verified page views from database">
+            <Eye className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+            <span className="text-white">
+              <AnimatedCounter value={traffic?.totalViews || 1} duration={1200} />
+            </span>
+            <span className="text-white/90 text-[10px] font-semibold">Views</span>
           </div>
         </div>
       </div>
