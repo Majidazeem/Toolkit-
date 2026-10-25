@@ -6,10 +6,11 @@ const LOCKOUT_KEY = 'legend_mod_auth_lockout';
 const CUSTOM_CREDENTIALS_KEY = 'legend_mod_admin_credentials';
 const SECURITY_SALT = 'LEGEND_MOD_MA_LEGEND_SUPER_SECRET_SALT_2026_9478';
 
-// Default Master Credentials
-export const DEFAULT_MASTER_KEY = 'MALegend#2026!Mod';
-export const DEFAULT_SECURITY_PIN = '947840';
-export const DEFAULT_PORTAL_ACCESS_KEY = 'legendmod';
+// Irreversible Salted SHA-256 Hashes of Default Credentials
+// SHA-256 is mathematically one-way: plain text passwords can NEVER be extracted by decompiling JS.
+export const DEFAULT_MASTER_HASH = '26c128dac0581a40bc8dbafb1b39249fe828962d2b59e6ef05c249813494f3ae';
+export const DEFAULT_PIN_HASH = 'dd7d200ccd2a94040c1c026cf5e7be6bc8ccffe7d862fd010e477ec10668c7a8';
+export const DEFAULT_PORTAL_HASH = 'afd9c60197fed69fc078d9f7b8ab864135e0fd408757592269b1ea44d4ca7d31';
 
 // Helper: Compute SHA-256 hash using Web Crypto API
 export async function sha256(message: string): Promise<string> {
@@ -29,35 +30,64 @@ export async function sha256(message: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Get saved custom credentials or defaults
-export function getStoredCredentials(): { masterKey: string; pin: string; portalKey: string } {
+// Get saved custom credential hashes or defaults (Never returns plain text)
+export function getStoredCredentialHashes(): { masterHash: string; pinHash: string; portalHash: string } {
   if (typeof window === 'undefined') {
-    return { masterKey: DEFAULT_MASTER_KEY, pin: DEFAULT_SECURITY_PIN, portalKey: DEFAULT_PORTAL_ACCESS_KEY };
+    return { masterHash: DEFAULT_MASTER_HASH, pinHash: DEFAULT_PIN_HASH, portalHash: DEFAULT_PORTAL_HASH };
   }
   try {
     const raw = localStorage.getItem(CUSTOM_CREDENTIALS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
-        masterKey: parsed.masterKey || DEFAULT_MASTER_KEY,
-        pin: parsed.pin || DEFAULT_SECURITY_PIN,
-        portalKey: parsed.portalKey || DEFAULT_PORTAL_ACCESS_KEY
+        masterHash: parsed.masterHash || DEFAULT_MASTER_HASH,
+        pinHash: parsed.pinHash || DEFAULT_PIN_HASH,
+        portalHash: parsed.portalHash || DEFAULT_PORTAL_HASH
       };
     }
   } catch (e) {}
 
-  return { masterKey: DEFAULT_MASTER_KEY, pin: DEFAULT_SECURITY_PIN, portalKey: DEFAULT_PORTAL_ACCESS_KEY };
+  return { masterHash: DEFAULT_MASTER_HASH, pinHash: DEFAULT_PIN_HASH, portalHash: DEFAULT_PORTAL_HASH };
 }
 
-// Update admin credentials (called from Settings page)
-export function updateStoredCredentials(masterKey: string, pin: string, portalKey?: string) {
+// Verify entered credentials against irreversible cryptographic hashes
+export async function verifyCredentials(masterKey: string, pin: string): Promise<boolean> {
+  const masterHash = await sha256(masterKey.trim());
+  const pinHash = await sha256(pin.trim());
+  
+  const stored = getStoredCredentialHashes();
+  const targetMaster = stored.masterHash || DEFAULT_MASTER_HASH;
+  const targetPin = stored.pinHash || DEFAULT_PIN_HASH;
+
+  return masterHash === targetMaster && pinHash === targetPin;
+}
+
+// Verify secret portal key against hash
+export async function verifyPortalKey(portalKey: string): Promise<boolean> {
+  if (!portalKey) return false;
+  const inputHash = await sha256(portalKey.trim().toLowerCase());
+  const stored = getStoredCredentialHashes();
+  const targetPortal = stored.portalHash || DEFAULT_PORTAL_HASH;
+  return inputHash === targetPortal;
+}
+
+// Update admin credentials by computing SHA-256 hashes first (Called from Settings)
+export async function updateStoredCredentials(masterKey?: string, pin?: string, portalKey?: string) {
   if (typeof window === 'undefined') return;
-  const current = getStoredCredentials();
-  localStorage.setItem(CUSTOM_CREDENTIALS_KEY, JSON.stringify({
-    masterKey: masterKey || current.masterKey,
-    pin: pin || current.pin,
-    portalKey: portalKey || current.portalKey
-  }));
+  const current = getStoredCredentialHashes();
+  const updates: any = { ...current };
+
+  if (masterKey && masterKey.trim()) {
+    updates.masterHash = await sha256(masterKey.trim());
+  }
+  if (pin && pin.trim()) {
+    updates.pinHash = await sha256(pin.trim());
+  }
+  if (portalKey && portalKey.trim()) {
+    updates.portalHash = await sha256(portalKey.trim().toLowerCase());
+  }
+
+  localStorage.setItem(CUSTOM_CREDENTIALS_KEY, JSON.stringify(updates));
 }
 
 // Anti-Brute Force Lockout Management

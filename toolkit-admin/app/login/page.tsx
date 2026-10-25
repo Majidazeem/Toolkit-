@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Lock, KeyRound, AlertCircle, Loader2, ShieldAlert, Clock, Eye, EyeOff } from 'lucide-react';
 import { 
-  getStoredCredentials, 
+  verifyCredentials,
+  verifyPortalKey,
   getLockoutStatus, 
   recordFailedAttempt, 
   createAdminSession,
-  verifyAdminSession,
-  DEFAULT_PORTAL_ACCESS_KEY
+  verifyAdminSession
 } from '../../lib/security';
 
 export default function LoginPage() {
@@ -18,13 +18,16 @@ export default function LoginPage() {
 
   // Stealth Access Check: requires secret URL parameter or 5-click easter egg
   const accessParam = searchParams.get('access') || searchParams.get('key') || searchParams.get('portal');
-  const storedCreds = getStoredCredentials();
-  const isDirectAuthorizedAccess = accessParam?.toLowerCase() === storedCreds.portalKey.toLowerCase() || 
-                                  accessParam?.toLowerCase() === DEFAULT_PORTAL_ACCESS_KEY.toLowerCase() ||
-                                  accessParam === 'legend';
-
-  const [isUnlocked, setIsUnlocked] = useState(isDirectAuthorizedAccess);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+
+  useEffect(() => {
+    if (accessParam) {
+      verifyPortalKey(accessParam).then(valid => {
+        if (valid) setIsUnlocked(true);
+      });
+    }
+  }, [accessParam]);
 
   // Form states
   const [masterKey, setMasterKey] = useState('');
@@ -91,11 +94,10 @@ export default function LoginPage() {
     // Artificial delay to prevent timing attacks
     await new Promise(r => setTimeout(r, 600));
 
-    const creds = getStoredCredentials();
-    const isMasterValid = masterKey.trim() === creds.masterKey;
-    const isPinValid = securityPin.trim() === creds.pin;
+    // Cryptographic SHA-256 salted verification
+    const isValid = await verifyCredentials(masterKey, securityPin);
 
-    if (isMasterValid && isPinValid) {
+    if (isValid) {
       await createAdminSession();
       router.push('/');
     } else {
@@ -116,11 +118,10 @@ export default function LoginPage() {
   const [secretError, setSecretError] = useState('');
 
   // Handle manual secret unlock on 404 page
-  const handleVerifySecretKey = (e: React.FormEvent) => {
+  const handleVerifySecretKey = async (e: React.FormEvent) => {
     e.preventDefault();
-    const creds = getStoredCredentials();
-    const clean = enteredSecret.trim().toLowerCase();
-    if (clean === creds.portalKey.toLowerCase() || clean === DEFAULT_PORTAL_ACCESS_KEY.toLowerCase() || clean === 'legend' || clean === 'legendmod') {
+    const valid = await verifyPortalKey(enteredSecret);
+    if (valid) {
       setIsUnlocked(true);
       setShowSecretModal(false);
     } else {
@@ -188,9 +189,9 @@ export default function LoginPage() {
               <form onSubmit={handleVerifySecretKey} className="space-y-3">
                 <label className="block text-xs text-slate-300">Enter Secret Access Key:</label>
                 <input
-                  type="text"
+                  type="password"
                   autoFocus
-                  placeholder="e.g. legendmod"
+                  placeholder="Enter Secret Key"
                   value={enteredSecret}
                   onChange={(e) => { setEnteredSecret(e.target.value); setSecretError(''); }}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-red-500"

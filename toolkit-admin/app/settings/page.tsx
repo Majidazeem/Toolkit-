@@ -10,7 +10,6 @@ import {
   seedInitialDataToFirebase 
 } from '../../lib/firebase';
 import { 
-  getStoredCredentials, 
   updateStoredCredentials, 
   getLockoutStatus, 
   resetLockout 
@@ -67,12 +66,6 @@ export default function AdminSettingsPage() {
 
   useEffect(() => {
     getAdminSettings().then(setSettings);
-    
-    // Load security credentials
-    const creds = getStoredCredentials();
-    setMasterKey(creds.masterKey);
-    setSecurityPin(creds.pin);
-    setPortalKey(creds.portalKey);
     setLockoutInfo(getLockoutStatus());
   }, []);
 
@@ -93,14 +86,17 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleSaveSecurity = (e: React.FormEvent) => {
+  const handleSaveSecurity = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!masterKey || !securityPin || !portalKey) {
-      alert('All security fields are required.');
+    if (!masterKey && !securityPin && !portalKey) {
+      alert('Please enter a new Master Key, PIN, or Access Key to update.');
       return;
     }
-    updateStoredCredentials(masterKey, securityPin, portalKey);
+    await updateStoredCredentials(masterKey, securityPin, portalKey);
     setSecuritySaved(true);
+    setMasterKey('');
+    setSecurityPin('');
+    setPortalKey('');
     setTimeout(() => setSecuritySaved(false), 3000);
   };
 
@@ -376,11 +372,11 @@ export default function AdminSettingsPage() {
                     type="text"
                     value={portalKey}
                     onChange={(e) => setPortalKey(e.target.value.trim().toLowerCase())}
-                    placeholder="legendmod"
+                    placeholder="Enter new portal access key"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-red-500"
                   />
                 </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">Default: legendmod</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">Status: Cryptographically Hash Protected</span>
               </div>
 
               {/* Master Passphrase */}
@@ -393,6 +389,7 @@ export default function AdminSettingsPage() {
                   <input
                     type={showMasterKey ? 'text' : 'password'}
                     value={masterKey}
+                    placeholder="Enter new Master Key to update"
                     onChange={(e) => setMasterKey(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-9 py-2 text-xs text-white font-mono focus:outline-none focus:border-red-500"
                   />
@@ -404,7 +401,7 @@ export default function AdminSettingsPage() {
                     {showMasterKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">Default: MALegend#2026!Mod</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">Status: Irreversible SHA-256 Protected</span>
               </div>
 
               {/* 6-Digit PIN */}
@@ -415,11 +412,12 @@ export default function AdminSettingsPage() {
                 <input
                   type="password"
                   maxLength={6}
+                  placeholder="••••••"
                   value={securityPin}
                   onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ''))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono tracking-widest text-center focus:outline-none focus:border-red-500"
                 />
-                <span className="text-[10px] text-slate-500 mt-1 block">Default: 947840</span>
+                <span className="text-[10px] text-slate-500 mt-1 block">Status: Salted Hash Protected</span>
               </div>
             </div>
 
