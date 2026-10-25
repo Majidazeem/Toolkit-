@@ -24,6 +24,8 @@ interface ToolCardProps {
 
 const PRICING_COLORS: Record<string, string> = {
   Free: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold',
+  Pro: 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 border-amber-500 font-black shadow-xs tracking-wider',
+  VIP: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400 font-black shadow-xs tracking-wider',
   Freemium: 'bg-rose-50 text-rose-800 border-rose-300 font-bold',
   'Open Source': 'bg-amber-50 text-amber-900 border-amber-300 font-bold',
   Paid: 'bg-purple-50 text-purple-800 border-purple-300 font-bold'

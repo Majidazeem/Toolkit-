@@ -276,9 +276,11 @@ export default function ToolEditorModal({
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
               >
                 <option value="Free">Free</option>
+                <option value="Pro">Pro ⭐</option>
+                <option value="VIP">VIP 👑</option>
                 <option value="Freemium">Freemium</option>
-                <option value="Open Source">Open Source</option>
                 <option value="Paid">Paid</option>
+                <option value="Open Source">Open Source</option>
               </select>
             </div>
 

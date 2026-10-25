@@ -87,19 +87,22 @@ export default function FilterBar({
             <SlidersHorizontal className="w-3 h-3 text-red-600" />
             Pricing:
           </span>
-          {['all', 'Free', 'Freemium', 'Open Source', 'Paid'].map((tier) => {
+          {['all', 'Free', 'Pro', 'VIP', 'Freemium', 'Paid', 'Open Source'].map((tier) => {
             const isSelected = selectedPricing === tier;
+            let activeStyle = 'bg-red-50 text-red-700 border-red-300 font-bold';
+            if (tier === 'Pro') activeStyle = 'bg-amber-400 text-slate-950 border-amber-500 font-black shadow-xs';
+            if (tier === 'VIP') activeStyle = 'bg-purple-600 text-white border-purple-500 font-black shadow-xs';
             return (
               <button
                 key={tier}
                 onClick={() => setSelectedPricing(tier)}
-                className={`px-2 py-0.5 rounded-lg transition-colors text-[11px] font-semibold ${
+                className={`px-2 py-0.5 rounded-lg transition-colors text-[11px] font-semibold border ${
                   isSelected
-                    ? 'bg-red-50 text-red-700 border border-red-300 font-bold shadow-xs'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900 shadow-xs'
+                    ? `${activeStyle} shadow-xs`
+                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 shadow-xs'
                 }`}
               >
-                {tier === 'all' ? 'All' : tier}
+                {tier === 'all' ? 'All' : tier === 'Pro' ? '⭐ Pro' : tier === 'VIP' ? '👑 VIP' : tier}
               </button>
             );
           })}

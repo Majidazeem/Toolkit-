@@ -1,4 +1,4 @@
-export type PricingType = 'Free' | 'Freemium' | 'Paid' | 'Open Source';
+export type PricingType = 'Free' | 'Pro' | 'VIP' | 'Freemium' | 'Paid' | 'Open Source';
 
 export interface Tool {
   id: string;
