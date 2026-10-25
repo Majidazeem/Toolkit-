@@ -72,7 +72,7 @@ export default function ToolDetailModal({
   const isPaid = tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' || Boolean(tool.price);
   const cleanPhone = cleanWhatsAppNumber(tool.whatsappNumber || defaultWhatsappNumber);
   const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
-  const orderMessage = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
+  const orderMessage = `Hello MA LEGEND! I want to purchase this ${tool.pricing || 'Pro'} Tool: *${tool.name}*${priceSnippet}. Please send me the payment details (EasyPaisa / JazzCash / SadaPay / Binance). Thank you!`;
   const whatsappOrderUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(orderMessage)}`;
 
   const handleOrderWhatsApp = () => {
@@ -256,15 +256,15 @@ export default function ToolDetailModal({
                 </div>
               </div>
 
-              {/* Order Instructions (Roman Urdu / English) */}
+              {/* Order Instructions (English & Urdu) */}
               <div className="bg-white/90 rounded-xl p-3 border border-emerald-200/80 text-xs text-slate-700 space-y-1.5 font-medium shadow-2xs">
                 <div className="flex items-center gap-1.5 text-slate-900 font-bold">
-                  <span>📲 Khareedne Ka Tareeqa (3 Simple Steps):</span>
+                  <span>📲 How to Order (3 Simple Steps):</span>
                 </div>
                 <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600">
-                  <li>Neeche <strong>"Order on WhatsApp"</strong> button par click karein.</li>
-                  <li>WhatsApp par auto-filled order message direct MA LEGEND ko send karein.</li>
-                  <li>Payment transfer (EasyPaisa / JazzCash / SadaPay / Binance) karein aur instant access receive karein!</li>
+                  <li>Click the <strong>"Order on WhatsApp"</strong> button below.</li>
+                  <li>Send the pre-filled English order message directly to MA LEGEND on WhatsApp.</li>
+                  <li>Transfer payment (EasyPaisa / JazzCash / SadaPay / Binance) and get instant access!</li>
                 </ol>
               </div>
 
@@ -278,7 +278,7 @@ export default function ToolDetailModal({
                   className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />
-                  <span>Direct WhatsApp Order Karein {tool.price ? `(${tool.price})` : ''} 💬</span>
+                  <span>Order on WhatsApp {tool.price ? `(${tool.price})` : ''} 💬</span>
                 </a>
 
                 <button

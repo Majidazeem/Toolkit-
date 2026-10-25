@@ -64,7 +64,7 @@ export default function ToolCard({
 
   const phone = cleanWhatsAppNumber(tool.whatsappNumber || defaultWhatsappNumber);
   const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
-  const message = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
+  const message = `Hello MA LEGEND! I want to purchase this ${tool.pricing || 'Pro'} Tool: *${tool.name}*${priceSnippet}. Please send me the payment details (EasyPaisa / JazzCash / SadaPay / Binance). Thank you!`;
   const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   if (viewMode === 'list') {
