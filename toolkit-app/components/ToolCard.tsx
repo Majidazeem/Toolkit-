@@ -21,7 +21,21 @@ interface ToolCardProps {
   onToggleBookmark: (toolId: string) => void;
   onOpenDetails: (tool: Tool) => void;
   onVisitTool: (tool: Tool) => void;
+  onTrackClick?: (tool: Tool) => void;
   viewMode: 'grid' | 'list';
+}
+
+function cleanWhatsAppNumber(phone?: string): string {
+  if (!phone) return '923001234567';
+  let num = phone.replace(/[^0-9]/g, '');
+  if (num.startsWith('0092')) {
+    num = num.substring(2);
+  } else if (num.startsWith('03')) {
+    num = '92' + num.substring(1);
+  } else if (num.startsWith('3') && num.length === 10) {
+    num = '92' + num;
+  }
+  return num || '923001234567';
 }
 
 const PRICING_COLORS: Record<string, string> = {
@@ -40,6 +54,7 @@ export default function ToolCard({
   onToggleBookmark,
   onOpenDetails,
   onVisitTool,
+  onTrackClick,
   viewMode
 }: ToolCardProps) {
   const [imgError, setImgError] = useState(false);
@@ -47,20 +62,10 @@ export default function ToolCard({
   const pricingClass = PRICING_COLORS[tool.pricing] || 'bg-slate-100 text-slate-700 border-slate-300';
   const isPaid = tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' || Boolean(tool.price);
 
-  const getWhatsAppUrl = () => {
-    const phone = (tool.whatsappNumber || defaultWhatsappNumber || '923001234567').replace(/[^0-9]/g, '');
-    const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
-    const message = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  };
-
-  const handleOrderWhatsApp = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onVisitTool(tool);
-    if (typeof window !== 'undefined') {
-      window.open(getWhatsAppUrl(), '_blank', 'noopener,noreferrer');
-    }
-  };
+  const phone = cleanWhatsAppNumber(tool.whatsappNumber || defaultWhatsappNumber);
+  const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
+  const message = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   if (viewMode === 'list') {
     return (
@@ -130,14 +135,20 @@ export default function ToolCard({
             </button>
 
             {isPaid ? (
-              <button
-                onClick={handleOrderWhatsApp}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md shadow-emerald-600/25 hover:scale-105 active:scale-95 transition-all"
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTrackClick?.(tool);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md shadow-emerald-600/25 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 title="Order on WhatsApp"
               >
                 <MessageCircle className="w-3.5 h-3.5 fill-white" />
                 <span>Buy on WhatsApp</span>
-              </button>
+              </a>
             ) : (
               <button
                 onClick={() => onVisitTool(tool)}
@@ -249,14 +260,20 @@ export default function ToolCard({
           </button>
 
           {isPaid ? (
-            <button
-              onClick={handleOrderWhatsApp}
-              className="py-1.5 px-1.5 text-[10px] sm:text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-sm shadow-emerald-600/25 transition-all flex items-center justify-center gap-1 hover:scale-[1.03] active:scale-95"
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTrackClick?.(tool);
+              }}
+              className="py-1.5 px-1.5 text-[10px] sm:text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-sm shadow-emerald-600/25 transition-all flex items-center justify-center gap-1 hover:scale-[1.03] active:scale-95 cursor-pointer"
               title="Buy on WhatsApp"
             >
               <MessageCircle className="w-3 h-3 fill-white shrink-0" />
               <span className="truncate">Buy Pro</span>
-            </button>
+            </a>
           ) : (
             <button
               onClick={() => onVisitTool(tool)}

@@ -25,8 +25,22 @@ interface ToolDetailModalProps {
   isBookmarked: boolean;
   onToggleBookmark: (toolId: string) => void;
   onVisitTool: (tool: Tool) => void;
+  onTrackClick?: (tool: Tool) => void;
   relatedTools: Tool[];
   onSelectRelated: (tool: Tool) => void;
+}
+
+function cleanWhatsAppNumber(phone?: string): string {
+  if (!phone) return '923001234567';
+  let num = phone.replace(/[^0-9]/g, '');
+  if (num.startsWith('0092')) {
+    num = num.substring(2);
+  } else if (num.startsWith('03')) {
+    num = '92' + num.substring(1);
+  } else if (num.startsWith('3') && num.length === 10) {
+    num = '92' + num;
+  }
+  return num || '923001234567';
 }
 
 export default function ToolDetailModal({
@@ -36,6 +50,7 @@ export default function ToolDetailModal({
   isBookmarked,
   onToggleBookmark,
   onVisitTool,
+  onTrackClick,
   relatedTools,
   onSelectRelated
 }: ToolDetailModalProps) {
@@ -55,16 +70,13 @@ export default function ToolDetailModal({
   if (!tool) return null;
 
   const isPaid = tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' || Boolean(tool.price);
-  const cleanPhone = (tool.whatsappNumber || defaultWhatsappNumber || '923001234567').replace(/[^0-9]/g, '');
+  const cleanPhone = cleanWhatsAppNumber(tool.whatsappNumber || defaultWhatsappNumber);
   const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
   const orderMessage = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
   const whatsappOrderUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(orderMessage)}`;
 
   const handleOrderWhatsApp = () => {
-    onVisitTool(tool);
-    if (typeof window !== 'undefined') {
-      window.open(whatsappOrderUrl, '_blank', 'noopener,noreferrer');
-    }
+    if (onTrackClick) onTrackClick(tool);
   };
 
   const handleCopyOrderText = () => {
@@ -163,13 +175,16 @@ export default function ToolDetailModal({
               </button>
 
               {isPaid ? (
-                <button
+                <a
+                  href={whatsappOrderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={handleOrderWhatsApp}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-105 active:scale-95"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />
                   <span>Buy on WhatsApp 💬</span>
-                </button>
+                </a>
               ) : (
                 <button
                   onClick={() => onVisitTool(tool)}
@@ -255,13 +270,16 @@ export default function ToolDetailModal({
 
               {/* Big Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-2">
-                <button
+                <a
+                  href={whatsappOrderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={handleOrderWhatsApp}
-                  className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95"
+                  className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />
                   <span>Direct WhatsApp Order Karein {tool.price ? `(${tool.price})` : ''} 💬</span>
-                </button>
+                </a>
 
                 <button
                   onClick={handleCopyOrderText}

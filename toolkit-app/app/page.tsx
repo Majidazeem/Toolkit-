@@ -112,6 +112,12 @@ export default function HomePage() {
     }
   };
 
+  // Handle click analytics without opening tool website (for WhatsApp order)
+  const handleTrackClick = (tool: Tool) => {
+    incrementToolClicks(tool.id);
+    setTools(prev => prev.map(t => t.id === tool.id ? { ...t, clicks: (t.clicks || 0) + 1 } : t));
+  };
+
   // Handle open details modal
   const handleOpenDetails = (tool: Tool) => {
     incrementToolViews(tool.id);
@@ -257,6 +263,7 @@ export default function HomePage() {
                       onToggleBookmark={handleToggleBookmark}
                       onOpenDetails={handleOpenDetails}
                       onVisitTool={handleVisitTool}
+                      onTrackClick={handleTrackClick}
                       viewMode={viewMode}
                     />
                   ))}
@@ -306,6 +313,7 @@ export default function HomePage() {
         isBookmarked={activeDetailTool ? bookmarkedIds.includes(activeDetailTool.id) : false}
         onToggleBookmark={handleToggleBookmark}
         onVisitTool={handleVisitTool}
+        onTrackClick={handleTrackClick}
         relatedTools={relatedTools}
         onSelectRelated={(tool) => setActiveDetailTool(tool)}
       />
