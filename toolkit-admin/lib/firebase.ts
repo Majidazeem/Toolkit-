@@ -1,5 +1,15 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
+  getDatabase, 
+  ref, 
+  set, 
+  get, 
+  child, 
+  update, 
+  remove, 
+  onValue 
+} from 'firebase/database';
+import { 
   getFirestore, 
   collection, 
   getDocs, 
@@ -10,7 +20,6 @@ import {
   deleteDoc, 
   addDoc 
 } from 'firebase/firestore';
-import { getDatabase, ref, set, get, child } from 'firebase/database';
 import { Tool, ToolSubmission, SiteSettings, Category, DashboardMetrics } from './types';
 import { INITIAL_TOOLS, INITIAL_CATEGORIES, INITIAL_SETTINGS } from './seedData';
 
@@ -26,32 +35,49 @@ export const firebaseConfig = {
 };
 
 export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
+export const db = getFirestore(app);
 
 const LOCAL_STORAGE_KEY_TOOLS = 'yalla_toolkit_tools_cache';
 const LOCAL_STORAGE_KEY_CATEGORIES = 'yalla_toolkit_categories_cache';
 const LOCAL_STORAGE_KEY_SETTINGS = 'yalla_toolkit_settings_cache';
 const LOCAL_STORAGE_KEY_SUBMISSIONS = 'yalla_toolkit_submissions_cache';
 
-// Fetch all tools (including drafts)
+// ==========================================
+// 1. TOOLS MANAGEMENT (FULL CRUD VIA RTDB)
+// ==========================================
+
+// Fetch all tools from Firebase Realtime Database
 export async function getAllTools(): Promise<Tool[]> {
   try {
-    const snapshot = await getDocs(collection(db, 'tools'));
-    if (!snapshot.empty) {
-      const tools: Tool[] = [];
-      snapshot.forEach(docSnap => {
-        tools.push({ ...(docSnap.data() as Tool), id: docSnap.id });
+    const toolsRef = ref(rtdb, 'tools');
+    const snapshot = await get(toolsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const toolsList: Tool[] = [];
+      Object.keys(data).forEach((key) => {
+        if (data[key]) {
+          toolsList.push({ ...data[key], id: data[key].id || key });
+        }
       });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(tools));
+
+      if (toolsList.length > 0) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(toolsList));
+        }
+        return toolsList;
       }
-      return tools;
+    } else {
+      // First run: seed initial curated tools directly into RTDB
+      await seedInitialDataToFirebase();
+      return INITIAL_TOOLS;
     }
   } catch (err) {
-    console.warn('Could not read tools from Firebase. Falling back to local storage:', err);
+    console.warn('Realtime database read notice, checking local cache:', err);
   }
 
+  // Fallback to local storage
   if (typeof window !== 'undefined') {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY_TOOLS);
     if (cached) {
@@ -60,14 +86,18 @@ export async function getAllTools(): Promise<Tool[]> {
       } catch (e) {}
     }
   }
+
   return INITIAL_TOOLS;
 }
 
-// Create a new tool
-export async function createTool(toolData: Omit<Tool, 'id' | 'createdAt' | 'views' | 'clicks' | 'rating'>): Promise<Tool> {
+// Create a new tool in Firebase Realtime Database
+export async function createTool(
+  toolData: Omit<Tool, 'id' | 'createdAt' | 'views' | 'clicks' | 'rating'>
+): Promise<Tool> {
+  const newId = `tool_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const newTool: Tool = {
     ...toolData,
-    id: `tool-${Date.now()}`,
+    id: newId,
     createdAt: new Date().toISOString(),
     views: 0,
     clicks: 0,
@@ -75,47 +105,46 @@ export async function createTool(toolData: Omit<Tool, 'id' | 'createdAt' | 'view
   };
 
   try {
-    const docRef = await addDoc(collection(db, 'tools'), newTool);
-    newTool.id = docRef.id;
+    await set(ref(rtdb, `tools/${newId}`), newTool);
   } catch (err) {
-    console.warn('Failed to add to Firebase. Persisting locally:', err);
+    console.warn('Failed to save tool to RTDB:', err);
   }
 
   // Update local cache
   if (typeof window !== 'undefined') {
     const cached = await getAllTools();
-    const updated = [newTool, ...cached.filter(t => t.id !== newTool.id)];
+    const updated = [newTool, ...cached.filter(t => t.id !== newId)];
     localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(updated));
   }
 
   return newTool;
 }
 
-// Update an existing tool
+// Update an existing tool in Firebase Realtime Database
 export async function updateTool(id: string, updates: Partial<Tool>): Promise<void> {
   try {
-    const docRef = doc(db, 'tools', id);
-    await updateDoc(docRef, updates);
+    await update(ref(rtdb, `tools/${id}`), updates);
   } catch (err) {
-    console.warn('Failed to update tool in Firebase. Updating locally:', err);
+    console.warn('Failed to update tool in RTDB:', err);
   }
 
+  // Update local cache
   if (typeof window !== 'undefined') {
     const cached = await getAllTools();
-    const updated = cached.map(t => t.id === id ? { ...t, ...updates } : t);
+    const updated = cached.map(t => (t.id === id ? { ...t, ...updates } : t));
     localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(updated));
   }
 }
 
-// Delete a tool
+// Delete a tool permanently from Firebase Realtime Database
 export async function deleteTool(id: string): Promise<void> {
   try {
-    const docRef = doc(db, 'tools', id);
-    await deleteDoc(docRef);
+    await remove(ref(rtdb, `tools/${id}`));
   } catch (err) {
-    console.warn('Failed to delete in Firebase. Deleting locally:', err);
+    console.warn('Failed to delete tool from RTDB:', err);
   }
 
+  // Update local cache
   if (typeof window !== 'undefined') {
     const cached = await getAllTools();
     const updated = cached.filter(t => t.id !== id);
@@ -123,47 +152,102 @@ export async function deleteTool(id: string): Promise<void> {
   }
 }
 
-// Submissions management
-export async function getAllSubmissions(): Promise<ToolSubmission[]> {
+// ==========================================
+// 2. CATEGORIES MANAGEMENT (FULL CRUD)
+// ==========================================
+
+export async function getAllCategories(): Promise<Category[]> {
   try {
-    const snapshot = await getDocs(collection(db, 'submissions'));
-    if (!snapshot.empty) {
-      const subs: ToolSubmission[] = [];
-      snapshot.forEach(docSnap => {
-        subs.push({ ...(docSnap.data() as ToolSubmission), id: docSnap.id });
+    const catsRef = ref(rtdb, 'categories');
+    const snapshot = await get(catsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const list: Category[] = [];
+      Object.keys(data).forEach((key) => {
+        if (data[key]) {
+          list.push({ ...data[key], id: data[key].id || key });
+        }
       });
-      return subs;
+      if (list.length > 0) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(list));
+        }
+        return list;
+      }
     }
-  } catch (err) {
-    console.warn('Could not read submissions from Firebase. Checking local cache:', err);
+  } catch (e) {}
+
+  if (typeof window !== 'undefined') {
+    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_CATEGORIES);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (err) {}
+    }
+  }
+  return INITIAL_CATEGORIES;
+}
+
+export async function saveCategories(categories: Category[]): Promise<void> {
+  try {
+    const obj: Record<string, Category> = {};
+    categories.forEach(c => {
+      obj[c.id] = c;
+    });
+    await set(ref(rtdb, 'categories'), obj);
+  } catch (e) {
+    console.warn('Failed to save categories to RTDB:', e);
   }
 
   if (typeof window !== 'undefined') {
-    const cached = localStorage.getItem('yalla_pending_submissions');
+    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categories));
+  }
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  try {
+    await remove(ref(rtdb, `categories/${id}`));
+  } catch (e) {
+    console.warn('Failed to remove category from RTDB:', e);
+  }
+
+  if (typeof window !== 'undefined') {
+    const cats = await getAllCategories();
+    const updated = cats.filter(c => c.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
+  }
+}
+
+// ==========================================
+// 3. SUBMISSIONS MANAGEMENT
+// ==========================================
+
+export async function getAllSubmissions(): Promise<ToolSubmission[]> {
+  try {
+    const subsRef = ref(rtdb, 'submissions');
+    const snapshot = await get(subsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const list: ToolSubmission[] = [];
+      Object.keys(data).forEach((key) => {
+        if (data[key]) {
+          list.push({ ...data[key], id: data[key].id || key });
+        }
+      });
+      return list;
+    }
+  } catch (err) {}
+
+  if (typeof window !== 'undefined') {
+    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_SUBMISSIONS);
     if (cached) {
-      try {
-        return JSON.parse(cached);
-      } catch (e) {}
+      try { return JSON.parse(cached); } catch (e) {}
     }
   }
 
-  return [
-    {
-      id: 'sample-sub-1',
-      name: 'v0 by Vercel',
-      url: 'https://v0.dev',
-      category: 'ai',
-      pricing: 'Freemium',
-      description: 'Generative UI system by Vercel powered by AI. Generates copy-paste friendly React code.',
-      iconUrl: 'https://v0.dev/favicon.ico',
-      submittedBy: 'user@example.com',
-      status: 'pending',
-      submittedAt: new Date(Date.now() - 3600000 * 5).toISOString()
-    }
-  ];
+  return [];
 }
 
-// Approve submission and publish it to tools
 export async function approveSubmission(submission: ToolSubmission): Promise<Tool> {
   const newTool: Omit<Tool, 'id' | 'createdAt' | 'views' | 'clicks' | 'rating'> = {
     name: submission.name,
@@ -182,62 +266,27 @@ export async function approveSubmission(submission: ToolSubmission): Promise<Too
   const created = await createTool(newTool);
 
   try {
-    await deleteDoc(doc(db, 'submissions', submission.id));
-  } catch (e) {
-    // delete locally
-    if (typeof window !== 'undefined') {
-      const cached = JSON.parse(localStorage.getItem('yalla_pending_submissions') || '[]');
-      localStorage.setItem('yalla_pending_submissions', JSON.stringify(cached.filter((s: ToolSubmission) => s.id !== submission.id)));
-    }
-  }
+    await remove(ref(rtdb, `submissions/${submission.id}`));
+  } catch (e) {}
 
   return created;
 }
 
-// Reject submission
 export async function rejectSubmission(id: string): Promise<void> {
   try {
-    await deleteDoc(doc(db, 'submissions', id));
-  } catch (e) {
-    if (typeof window !== 'undefined') {
-      const cached = JSON.parse(localStorage.getItem('yalla_pending_submissions') || '[]');
-      localStorage.setItem('yalla_pending_submissions', JSON.stringify(cached.filter((s: ToolSubmission) => s.id !== id)));
-    }
-  }
-}
-
-// Categories Management
-export async function getAllCategories(): Promise<Category[]> {
-  try {
-    const snapshot = await getDocs(collection(db, 'categories'));
-    if (!snapshot.empty) {
-      const list: Category[] = [];
-      snapshot.forEach(docSnap => list.push({ ...(docSnap.data() as Category), id: docSnap.id }));
-      return list;
-    }
+    await remove(ref(rtdb, `submissions/${id}`));
   } catch (e) {}
-
-  if (typeof window !== 'undefined') {
-    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_CATEGORIES);
-    if (cached) {
-      try { return JSON.parse(cached); } catch (err) {}
-    }
-  }
-  return INITIAL_CATEGORIES;
 }
 
-export async function saveCategories(categories: Category[]): Promise<void> {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(LOCAL_STORAGE_KEY_CATEGORIES, JSON.stringify(categories));
-  }
-}
+// ==========================================
+// 4. SITE SETTINGS MANAGEMENT
+// ==========================================
 
-// Settings
 export async function getAdminSettings(): Promise<SiteSettings> {
   try {
-    const snap = await getDoc(doc(db, 'settings', 'general'));
+    const snap = await get(ref(rtdb, 'site_settings'));
     if (snap.exists()) {
-      return snap.data() as SiteSettings;
+      return snap.val() as SiteSettings;
     }
   } catch (e) {}
 
@@ -252,45 +301,61 @@ export async function getAdminSettings(): Promise<SiteSettings> {
 
 export async function updateAdminSettings(settings: SiteSettings): Promise<void> {
   try {
-    await setDoc(doc(db, 'settings', 'general'), settings);
+    await set(ref(rtdb, 'site_settings'), settings);
   } catch (e) {
-    console.warn('Failed saving settings to Firebase. Updating local storage:', e);
+    console.warn('Failed saving settings to RTDB:', e);
   }
   if (typeof window !== 'undefined') {
     localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }
 }
 
-// Push all initial tools into Firebase (1-Click Sync)
+// ==========================================
+// 5. 1-CLICK SYNC & HEALTH CHECK
+// ==========================================
+
+// Seed all initial tools, categories, and settings to RTDB
 export async function seedInitialDataToFirebase(): Promise<{ success: boolean; count: number; message: string }> {
   try {
-    let count = 0;
-    for (const tool of INITIAL_TOOLS) {
-      await setDoc(doc(db, 'tools', tool.id), tool);
-      count++;
-    }
-    await setDoc(doc(db, 'settings', 'general'), INITIAL_SETTINGS);
-    return { success: true, count, message: `Successfully seeded ${count} tools and settings to Firebase!` };
+    const toolsObj: Record<string, Tool> = {};
+    INITIAL_TOOLS.forEach(t => {
+      toolsObj[t.id] = t;
+    });
+    await set(ref(rtdb, 'tools'), toolsObj);
+
+    const catsObj: Record<string, Category> = {};
+    INITIAL_CATEGORIES.forEach(c => {
+      catsObj[c.id] = c;
+    });
+    await set(ref(rtdb, 'categories'), catsObj);
+
+    await set(ref(rtdb, 'site_settings'), INITIAL_SETTINGS);
+
+    return { 
+      success: true, 
+      count: INITIAL_TOOLS.length, 
+      message: `Successfully synced ${INITIAL_TOOLS.length} tools, categories, and settings to Firebase Cloud!` 
+    };
   } catch (err: any) {
-    return { success: false, count: 0, message: err?.message || 'Permission denied or connection error.' };
+    return { success: false, count: 0, message: err?.message || 'Connection or write error.' };
   }
 }
 
 // Database Connection Health Check
 export async function testDatabaseConnection(): Promise<{ connected: boolean; message: string; details?: any }> {
   try {
-    const testDocRef = doc(db, '_connection_test', 'status');
-    await setDoc(testDocRef, { ping: 'pong', timestamp: new Date().toISOString() });
-    const snap = await getDoc(testDocRef);
-    if (snap.exists()) {
-      return { connected: true, message: 'Firebase connection and read/write rules verified successfully!' };
+    const pingRef = ref(rtdb, '_connection_test');
+    await set(pingRef, { ping: 'pong', timestamp: new Date().toISOString() });
+    const snap = await get(pingRef);
+    if (snap.exists() && snap.val()?.ping === 'pong') {
+      return { connected: true, message: 'Firebase Realtime Database connected with full Read/Write permissions verified!' };
     }
-    return { connected: false, message: 'Could not read test document from Firebase.' };
+    return { connected: false, message: 'Could not read test response from Firebase.' };
   } catch (err: any) {
     return {
       connected: false,
-      message: err?.message || 'Could not connect to Firebase.',
-      details: err?.code || 'permission-denied or network error'
+      message: err?.message || 'Could not connect to Firebase Realtime Database.',
+      details: err?.code || 'network or permission error'
     };
   }
 }

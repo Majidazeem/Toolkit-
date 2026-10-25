@@ -19,6 +19,8 @@ import {
   toggleSavedBookmark,
   recordAndGetSiteViews,
   subscribeToRealtimeTraffic,
+  subscribeToLiveTools,
+  subscribeToLiveSettings,
   INITIAL_TRAFFIC
 } from '../lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_SETTINGS, INITIAL_TOOLS } from '../lib/seedData';
@@ -49,7 +51,7 @@ export default function HomePage() {
   // Tool Detail Modal state
   const [activeDetailTool, setActiveDetailTool] = useState<Tool | null>(null);
 
-  // Initial load
+  // Initial load & Realtime Sync
   useEffect(() => {
     async function loadData() {
       try {
@@ -69,12 +71,28 @@ export default function HomePage() {
     setBookmarkedIds(getSavedBookmarks());
     loadData();
 
+    // Subscribe to live Realtime Database tools updates (additions, edits, deletions)
+    const unsubscribeTools = subscribeToLiveTools((liveTools) => {
+      if (liveTools && liveTools.length > 0) {
+        setTools(liveTools);
+      }
+    });
+
+    // Subscribe to live settings updates
+    const unsubscribeSettings = subscribeToLiveSettings((liveSettings) => {
+      if (liveSettings) {
+        setSettings(liveSettings);
+      }
+    });
+
     // Subscribe to live Realtime Database views & presence
     const unsubscribeTraffic = subscribeToRealtimeTraffic((liveTraffic) => {
       setTraffic(liveTraffic);
     });
 
     return () => {
+      unsubscribeTools();
+      unsubscribeSettings();
       unsubscribeTraffic();
     };
   }, []);

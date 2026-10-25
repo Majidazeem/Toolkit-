@@ -3,7 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import AdminHeader from '../../components/AdminHeader';
-import { getAdminSettings, updateAdminSettings, testDatabaseConnection } from '../../lib/firebase';
+import { 
+  getAdminSettings, 
+  updateAdminSettings, 
+  testDatabaseConnection,
+  seedInitialDataToFirebase 
+} from '../../lib/firebase';
+import { 
+  getStoredCredentials, 
+  updateStoredCredentials, 
+  getLockoutStatus, 
+  resetLockout 
+} from '../../lib/security';
 import { SiteSettings } from '../../lib/types';
 import { 
   Settings, 
@@ -16,43 +27,53 @@ import {
   Sparkles,
   Globe,
   Mail,
-  Loader2
+  Loader2,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  ExternalLink,
+  ShieldAlert
 } from 'lucide-react';
-
-const FIREBASE_RULES_SNIPPET = `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allow public read on tools and settings
-    match /tools/{toolId} {
-      allow read: if true;
-      allow write: if true; // Or restrict to admin in production
-    }
-    match /settings/{doc} {
-      allow read: if true;
-      allow write: if true;
-    }
-    match /submissions/{subId} {
-      allow create: if true; // Public can submit
-      allow read, update, delete: if true;
-    }
-    match /_connection_test/{testId} {
-      allow read, write: if true;
-    }
-  }
-}`;
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Security Credentials State
+  const [masterKey, setMasterKey] = useState('');
+  const [securityPin, setSecurityPin] = useState('');
+  const [portalKey, setPortalKey] = useState('');
+  const [showMasterKey, setShowMasterKey] = useState(false);
+  const [securitySaved, setSecuritySaved] = useState(false);
+  const [lockoutInfo, setLockoutInfo] = useState<{ isLocked: boolean; remainingSeconds: number; attempts: number }>({
+    isLocked: false,
+    remainingSeconds: 0,
+    attempts: 0
+  });
+
   // DB test state
   const [testingDb, setTestingDb] = useState(false);
   const [dbResult, setDbResult] = useState<{ connected: boolean; message: string; details?: any } | null>(null);
-  const [copiedRules, setCopiedRules] = useState(false);
+
+  // DB Cloud Seed state
+  const [syncingCloud, setSyncingCloud] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Copied states
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   useEffect(() => {
     getAdminSettings().then(setSettings);
+    
+    // Load security credentials
+    const creds = getStoredCredentials();
+    setMasterKey(creds.masterKey);
+    setSecurityPin(creds.pin);
+    setPortalKey(creds.portalKey);
+    setLockoutInfo(getLockoutStatus());
   }, []);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
@@ -72,6 +93,22 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleSaveSecurity = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!masterKey || !securityPin || !portalKey) {
+      alert('All security fields are required.');
+      return;
+    }
+    updateStoredCredentials(masterKey, securityPin, portalKey);
+    setSecuritySaved(true);
+    setTimeout(() => setSecuritySaved(false), 3000);
+  };
+
+  const handleResetLockout = () => {
+    resetLockout();
+    setLockoutInfo({ isLocked: false, remainingSeconds: 0, attempts: 0 });
+  };
+
   const handleTestDatabase = async () => {
     setTestingDb(true);
     setDbResult(null);
@@ -85,10 +122,28 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleCopyRules = () => {
-    navigator.clipboard.writeText(FIREBASE_RULES_SNIPPET);
-    setCopiedRules(true);
-    setTimeout(() => setCopiedRules(false), 2000);
+  const handleSyncToCloud = async () => {
+    setSyncingCloud(true);
+    setSyncResult(null);
+    try {
+      const res = await seedInitialDataToFirebase();
+      setSyncResult(res);
+    } catch (err: any) {
+      setSyncResult({ success: false, message: err?.message || 'Sync failed.' });
+    } finally {
+      setSyncingCloud(false);
+    }
+  };
+
+  const getPortalLoginUrl = () => {
+    if (typeof window === 'undefined') return `/login?access=${portalKey}`;
+    return `${window.location.origin}/login?access=${portalKey}`;
+  };
+
+  const handleCopyPortalUrl = () => {
+    navigator.clipboard.writeText(getPortalLoginUrl());
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   if (!settings) {
@@ -107,7 +162,7 @@ export default function AdminSettingsPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader
           title="Toolkit Settings & Database"
-          subtitle="Configure site branding, announcement banner, and verify Firebase connection"
+          subtitle="Configure site branding, channel links, anti-crack security, and Firebase Realtime Database"
         />
 
         <div className="p-6 sm:p-8 space-y-8 flex-1 overflow-y-auto max-w-5xl">
@@ -120,7 +175,7 @@ export default function AdminSettingsPage() {
                   <Globe className="w-4 h-4 text-indigo-400" />
                   General Toolkit Branding
                 </h3>
-                <p className="text-xs text-slate-400">These settings are displayed on your public toolkit portal.</p>
+                <p className="text-xs text-slate-400">These settings are displayed live on the public toolkit portal.</p>
               </div>
 
               {saveSuccess && (
@@ -132,7 +187,7 @@ export default function AdminSettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Site Title</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Toolkit Name</label>
                 <input
                   type="text"
                   value={settings.siteName}
@@ -195,43 +250,59 @@ export default function AdminSettingsPage() {
 
               <input
                 type="text"
-                placeholder="e.g. 🚀 Welcome to Yalla Toolkit! Browse or submit your favorite tools."
+                placeholder="e.g. 🔥 Welcome to LEGEND MOD TOOLKIT! Join our official channels."
                 value={settings.announcementText || ''}
                 onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
                 className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            {/* Social Links */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Contact Email</label>
-                <input
-                  type="email"
-                  value={settings.contactEmail || ''}
-                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+            {/* Official Channel Links */}
+            <div>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Official Community & Social Links</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-emerald-400 mb-1">WhatsApp Channel Link</label>
+                  <input
+                    type="url"
+                    value={settings.whatsappUrl || ''}
+                    placeholder="https://whatsapp.com/channel/..."
+                    onChange={(e) => setSettings({ ...settings, whatsappUrl: e.target.value })}
+                    className="w-full bg-slate-950 border border-emerald-900/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Twitter / X URL</label>
-                <input
-                  type="url"
-                  value={settings.twitterUrl || ''}
-                  onChange={(e) => setSettings({ ...settings, twitterUrl: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-medium text-red-400 mb-1">YouTube Channel Link</label>
+                  <input
+                    type="url"
+                    value={settings.youtubeUrl || ''}
+                    placeholder="https://www.youtube.com/@..."
+                    onChange={(e) => setSettings({ ...settings, youtubeUrl: e.target.value })}
+                    className="w-full bg-slate-950 border border-red-900/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-mono"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Telegram / Discord URL</label>
-                <input
-                  type="url"
-                  value={settings.telegramUrl || ''}
-                  onChange={(e) => setSettings({ ...settings, telegramUrl: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
-                />
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">Contact Email</label>
+                  <input
+                    type="email"
+                    value={settings.contactEmail || ''}
+                    placeholder="contact@legendmod.com"
+                    onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">Creator / Author Name</label>
+                  <input
+                    type="text"
+                    value={settings.creatorName || 'MA LEGEND'}
+                    onChange={(e) => setSettings({ ...settings, creatorName: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
+                  />
+                </div>
               </div>
             </div>
 
@@ -242,33 +313,180 @@ export default function AdminSettingsPage() {
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>{saving ? 'Saving...' : 'Save All Settings'}</span>
+                <span>{saving ? 'Saving...' : 'Save All Site Settings'}</span>
               </button>
             </div>
           </form>
 
-          {/* Database Diagnostics & Rules Section */}
+          {/* Security & Anti-Crack Protection Section */}
+          <form onSubmit={handleSaveSecurity} className="admin-card rounded-2xl p-6 sm:p-8 border border-red-900/30 bg-red-950/10 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-red-900/30 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-red-400" />
+                  Anti-Crack & Stealth Security Credentials
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Nobody can crack or find the admin panel without the Secret Portal Key, Master Passphrase, and Security PIN.
+                </p>
+              </div>
+
+              {securitySaved && (
+                <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" /> Credentials Updated!
+                </span>
+              )}
+            </div>
+
+            {/* Secret URL Box */}
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <label className="block text-xs font-bold text-amber-400">
+                Your Secret Stealth Login URL
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={getPortalLoginUrl()}
+                  className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-cyan-300 select-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyPortalUrl}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold"
+                >
+                  {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedUrl ? 'Copied!' : 'Copy URL'}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Anyone visiting without <code className="text-amber-300 font-mono">?access={portalKey}</code> will see a realistic <strong>404 Not Found</strong> error page.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Secret Portal Parameter */}
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Secret Access Parameter Key
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={portalKey}
+                    onChange={(e) => setPortalKey(e.target.value.trim().toLowerCase())}
+                    placeholder="legendmod"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-red-500"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-500 mt-1 block">Default: legendmod</span>
+              </div>
+
+              {/* Master Passphrase */}
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Master Passphrase
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                  <input
+                    type={showMasterKey ? 'text' : 'password'}
+                    value={masterKey}
+                    onChange={(e) => setMasterKey(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-9 py-2 text-xs text-white font-mono focus:outline-none focus:border-red-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMasterKey(!showMasterKey)}
+                    className="absolute right-3 top-2.5 text-slate-500 hover:text-white"
+                  >
+                    {showMasterKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+                <span className="text-[10px] text-slate-500 mt-1 block">Default: MALegend#2026!Mod</span>
+              </div>
+
+              {/* 6-Digit PIN */}
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  6-Digit Security PIN
+                </label>
+                <input
+                  type="password"
+                  maxLength={6}
+                  value={securityPin}
+                  onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ''))}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono tracking-widest text-center focus:outline-none focus:border-red-500"
+                />
+                <span className="text-[10px] text-slate-500 mt-1 block">Default: 947840</span>
+              </div>
+            </div>
+
+            {/* Lockout status and reset */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+              <div className="text-xs text-slate-400">
+                Anti-Brute Force Protection: <strong>3 failed attempts</strong> triggers <strong>15-minute complete lockout</strong>.
+                {lockoutInfo.isLocked && (
+                  <span className="ml-2 text-red-400 font-bold">Currently locked for {lockoutInfo.remainingSeconds}s</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {lockoutInfo.attempts > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetLockout}
+                    className="text-xs text-slate-400 hover:text-white underline"
+                  >
+                    Reset Lockout Attempts ({lockoutInfo.attempts})
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/25 transition-all"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Update Security Credentials</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {/* Database Diagnostics & Cloud Sync Section */}
           <div className="admin-card rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Database className="w-4 h-4 text-teal-400" />
-                  Firebase Connection Diagnostic
+                  Firebase Realtime Database Cloud Sync
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Project ID: <strong className="text-indigo-400 font-mono">yalla-9478b</strong>
+                  Connected Endpoint: <strong className="text-teal-400 font-mono">yalla-9478b-default-rtdb.firebaseio.com</strong>
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={handleTestDatabase}
-                disabled={testingDb}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors disabled:opacity-50"
-              >
-                {testingDb ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />}
-                <span>{testingDb ? 'Testing Connection...' : 'Test Database Read/Write'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleTestDatabase}
+                  disabled={testingDb}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors disabled:opacity-50"
+                >
+                  {testingDb ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />}
+                  <span>{testingDb ? 'Testing Connection...' : 'Test Connection'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSyncToCloud}
+                  disabled={syncingCloud}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-lg shadow-teal-600/25 transition-all disabled:opacity-50"
+                >
+                  {syncingCloud ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  <span>{syncingCloud ? 'Syncing...' : 'Re-Sync All Data to Cloud'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Test Feedback */}
@@ -280,35 +498,26 @@ export default function AdminSettingsPage() {
               }`}>
                 {dbResult.connected ? <Check className="w-4 h-4 shrink-0 mt-0.5" /> : <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />}
                 <div>
-                  <div className="font-bold">{dbResult.connected ? 'Connection Verified!' : 'Connection Notice'}</div>
+                  <div className="font-bold">{dbResult.connected ? 'Realtime Database Connected & Active!' : 'Connection Notice'}</div>
                   <div className="text-[11px] mt-0.5 opacity-90">{dbResult.message}</div>
-                  {!dbResult.connected && (
-                    <div className="text-[11px] text-slate-400 mt-2">
-                      If permissions were denied, make sure to copy and paste the Firestore security rules below into your Firebase Console.
-                    </div>
-                  )}
                 </div>
               </div>
             )}
 
-            {/* Copyable Security Rules snippet */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-300">Recommended Firestore Security Rules</span>
-                <button
-                  type="button"
-                  onClick={handleCopyRules}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1"
-                >
-                  {copiedRules ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedRules ? 'Copied to Clipboard!' : 'Copy Rules Snippet'}</span>
-                </button>
+            {/* Cloud Sync Feedback */}
+            {syncResult && (
+              <div className={`p-4 rounded-xl text-xs flex items-start gap-3 border ${
+                syncResult.success
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  : 'bg-red-500/10 border-red-500/30 text-red-400'
+              }`}>
+                {syncResult.success ? <Check className="w-4 h-4 shrink-0 mt-0.5" /> : <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />}
+                <div>
+                  <div className="font-bold">{syncResult.success ? 'Sync Completed!' : 'Sync Notice'}</div>
+                  <div className="text-[11px] mt-0.5 opacity-90">{syncResult.message}</div>
+                </div>
               </div>
-
-              <pre className="p-4 rounded-xl bg-slate-950 font-mono text-[11px] text-slate-300 border border-slate-800 overflow-x-auto leading-relaxed">
-                {FIREBASE_RULES_SNIPPET}
-              </pre>
-            </div>
+            )}
 
           </div>
 

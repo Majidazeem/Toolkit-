@@ -51,30 +51,41 @@ const LOCAL_STORAGE_KEY_TOOLS = 'yalla_toolkit_tools_cache';
 const LOCAL_STORAGE_KEY_SETTINGS = 'yalla_toolkit_settings_cache';
 const LOCAL_STORAGE_KEY_BOOKMARKS = 'yalla_toolkit_bookmarks';
 
-// Get all published tools
+// ==========================================
+// TOOLS MANAGEMENT VIA FIREBASE REALTIME DB
+// ==========================================
+
+// Get all published tools from Firebase Realtime Database
 export async function getPublishedTools(): Promise<Tool[]> {
   try {
-    // 1. Try fetching from Firestore
-    const toolsRef = collection(db, 'tools');
-    const snapshot = await getDocs(toolsRef);
+    const toolsRef = ref(rtdb, 'tools');
+    const snapshot = await get(toolsRef);
     
-    if (!snapshot.empty) {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
       const remoteTools: Tool[] = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data() as Tool;
-        if (data.status === 'published') {
-          remoteTools.push({ ...data, id: docSnap.id });
+      Object.keys(data).forEach((key) => {
+        const item = data[key];
+        if (item && (!item.status || item.status === 'published')) {
+          remoteTools.push({ ...item, id: item.id || key });
         }
       });
+
       if (remoteTools.length > 0) {
         if (typeof window !== 'undefined') {
           localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(remoteTools));
         }
         return remoteTools;
       }
+    } else {
+      // First run: seed initial curated tools directly into RTDB
+      const toolsObj: Record<string, Tool> = {};
+      INITIAL_TOOLS.forEach(t => { toolsObj[t.id] = t; });
+      await set(ref(rtdb, 'tools'), toolsObj).catch(() => {});
+      return INITIAL_TOOLS;
     }
   } catch (error) {
-    console.warn('Firebase Firestore not accessible yet or empty. Using cached / default tools:', error);
+    console.warn('Realtime database read notice, checking local cache:', error);
   }
 
   // 2. Check localStorage cache
@@ -83,25 +94,54 @@ export async function getPublishedTools(): Promise<Tool[]> {
     if (cached) {
       try {
         return JSON.parse(cached);
-      } catch (e) {
-        // fallback
-      }
+      } catch (e) {}
     }
   }
 
-  // 3. Fallback to rich initial seed data
+  // 3. Fallback to initial seed data
   return INITIAL_TOOLS;
 }
 
-// Increment tool view count
+// Live real-time listener: instantly pushes tool additions, updates, or deletions to visitors
+export function subscribeToLiveTools(onUpdate: (tools: Tool[]) => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const toolsRef = ref(rtdb, 'tools');
+  const unsubscribe = onValue(toolsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const toolsList: Tool[] = [];
+      Object.keys(data).forEach((key) => {
+        const item = data[key];
+        if (item && (!item.status || item.status === 'published')) {
+          toolsList.push({ ...item, id: item.id || key });
+        }
+      });
+      if (toolsList.length > 0) {
+        localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(toolsList));
+        onUpdate(toolsList);
+        return;
+      }
+    }
+    // If empty or non-existent
+    onUpdate(INITIAL_TOOLS);
+  }, (err) => {
+    console.warn('Live tools listener notice:', err);
+  });
+
+  return () => {
+    unsubscribe();
+  };
+}
+
+// Increment tool view count in RTDB
 export async function incrementToolViews(toolId: string): Promise<void> {
   try {
-    const toolDocRef = doc(db, 'tools', toolId);
-    await updateDoc(toolDocRef, {
-      views: increment(1)
+    const toolRef = ref(rtdb, `tools/${toolId}`);
+    await update(toolRef, {
+      views: rtdbIncrement(1)
     });
   } catch (err) {
-    // Silently continue or update local cache
     if (typeof window !== 'undefined') {
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY_TOOLS);
       if (cached) {
@@ -116,12 +156,12 @@ export async function incrementToolViews(toolId: string): Promise<void> {
   }
 }
 
-// Increment tool click count (when user clicks "Visit Website")
+// Increment tool click count in RTDB (when user clicks "Visit Website")
 export async function incrementToolClicks(toolId: string): Promise<void> {
   try {
-    const toolDocRef = doc(db, 'tools', toolId);
-    await updateDoc(toolDocRef, {
-      clicks: increment(1)
+    const toolRef = ref(rtdb, `tools/${toolId}`);
+    await update(toolRef, {
+      clicks: rtdbIncrement(1)
     });
   } catch (err) {
     if (typeof window !== 'undefined') {
@@ -138,15 +178,19 @@ export async function incrementToolClicks(toolId: string): Promise<void> {
   }
 }
 
-// Get site settings
+// Get site settings from RTDB
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
-    const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
-    if (settingsDoc.exists()) {
-      return settingsDoc.data() as SiteSettings;
+    const snap = await get(ref(rtdb, 'site_settings'));
+    if (snap.exists()) {
+      const data = snap.val() as SiteSettings;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
+      }
+      return data;
     }
   } catch (err) {
-    // fallback
+    console.warn('Realtime database settings notice:', err);
   }
 
   if (typeof window !== 'undefined') {
@@ -159,6 +203,26 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 
   return INITIAL_SETTINGS;
+}
+
+// Live real-time listener for site settings
+export function subscribeToLiveSettings(onUpdate: (settings: SiteSettings) => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const settingsRef = ref(rtdb, 'site_settings');
+  const unsubscribe = onValue(settingsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val() as SiteSettings;
+      localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
+      onUpdate(data);
+    }
+  }, (err) => {
+    console.warn('Live settings listener notice:', err);
+  });
+
+  return () => {
+    unsubscribe();
+  };
 }
 
 // User bookmarks helpers
