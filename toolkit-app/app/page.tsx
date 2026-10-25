@@ -252,6 +252,7 @@ export default function HomePage() {
                     <ToolCard
                       key={tool.id}
                       tool={tool}
+                      defaultWhatsappNumber={settings.whatsappNumber}
                       isBookmarked={bookmarkedIds.includes(tool.id)}
                       onToggleBookmark={handleToggleBookmark}
                       onOpenDetails={handleOpenDetails}
@@ -300,6 +301,7 @@ export default function HomePage() {
       {/* Tool Detail Modal */}
       <ToolDetailModal
         tool={activeDetailTool}
+        defaultWhatsappNumber={settings.whatsappNumber}
         onClose={() => setActiveDetailTool(null)}
         isBookmarked={activeDetailTool ? bookmarkedIds.includes(activeDetailTool.id) : false}
         onToggleBookmark={handleToggleBookmark}

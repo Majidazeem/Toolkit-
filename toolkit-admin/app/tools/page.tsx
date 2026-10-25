@@ -215,9 +215,21 @@ export default function AdminToolsPage() {
 
                         {/* Pricing */}
                         <td className="py-3.5 px-3">
-                          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] font-semibold border border-slate-700">
-                            {tool.pricing}
-                          </span>
+                          <div className="flex flex-col gap-0.5 items-start">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              tool.pricing === 'VIP' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' :
+                              tool.pricing === 'Pro' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
+                              tool.pricing === 'Free' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                              'bg-slate-800 text-slate-300 border-slate-700'
+                            }`}>
+                              {tool.pricing}
+                            </span>
+                            {tool.price && (
+                              <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                                {tool.price}
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Featured Toggle */}

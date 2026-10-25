@@ -20,6 +20,7 @@ import { Tool } from '../lib/types';
 
 interface ToolDetailModalProps {
   tool: Tool | null;
+  defaultWhatsappNumber?: string;
   onClose: () => void;
   isBookmarked: boolean;
   onToggleBookmark: (toolId: string) => void;
@@ -30,6 +31,7 @@ interface ToolDetailModalProps {
 
 export default function ToolDetailModal({
   tool,
+  defaultWhatsappNumber,
   onClose,
   isBookmarked,
   onToggleBookmark,
@@ -38,6 +40,7 @@ export default function ToolDetailModal({
   onSelectRelated
 }: ToolDetailModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedOrder, setCopiedOrder] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
 
   // Close on Escape key
@@ -50,6 +53,27 @@ export default function ToolDetailModal({
   }, [onClose]);
 
   if (!tool) return null;
+
+  const isPaid = tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' || Boolean(tool.price);
+  const cleanPhone = (tool.whatsappNumber || defaultWhatsappNumber || '923001234567').replace(/[^0-9]/g, '');
+  const priceSnippet = tool.price ? ` (Price: ${tool.price})` : '';
+  const orderMessage = `Salam MA LEGEND! Mujhe ye ${tool.pricing || 'Pro'} Tool khareedna hai: *${tool.name}*${priceSnippet}. Payment details (EasyPaisa / JazzCash / SadaPay / Binance) send karein.`;
+  const whatsappOrderUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(orderMessage)}`;
+
+  const handleOrderWhatsApp = () => {
+    onVisitTool(tool);
+    if (typeof window !== 'undefined') {
+      window.open(whatsappOrderUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleCopyOrderText = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(orderMessage);
+      setCopiedOrder(true);
+      setTimeout(() => setCopiedOrder(false), 2000);
+    }
+  };
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -138,13 +162,23 @@ export default function ToolDetailModal({
                 <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-amber-500' : ''}`} />
               </button>
 
-              <button
-                onClick={() => onVisitTool(tool)}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 transition-all hover:scale-105"
-              >
-                <span>Open Website</span>
-                <ExternalLink className="w-4 h-4" />
-              </button>
+              {isPaid ? (
+                <button
+                  onClick={handleOrderWhatsApp}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-black rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-105 active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" />
+                  <span>Buy on WhatsApp 💬</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => onVisitTool(tool)}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 transition-all hover:scale-105"
+                >
+                  <span>Open Website</span>
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -169,6 +203,88 @@ export default function ToolDetailModal({
               </div>
             </div>
           </div>
+
+          {/* Pro / VIP Direct WhatsApp Order Box */}
+          {isPaid && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-amber-50/40 to-white border-2 border-emerald-400 shadow-lg shadow-emerald-500/10 space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200/70 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
+                    <MessageCircle className="w-5 h-5 fill-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                        {tool.pricing === 'VIP' ? '👑 VIP Elite Direct Order' : '⭐ Pro Direct Order (WhatsApp)'}
+                      </h4>
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white animate-pulse">
+                        Instant Access
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 font-medium">
+                      Direct 1-on-1 purchase from MA LEGEND (Sabse Tez & Mehfooz Tareeqa)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  {tool.price ? (
+                    <div className="bg-white px-3 py-1.5 rounded-xl border border-emerald-300 shadow-xs text-right">
+                      <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Official Price</div>
+                      <div className="text-lg font-black text-emerald-700 font-mono leading-none">{tool.price}</div>
+                    </div>
+                  ) : (
+                    <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300">
+                      Contact for Price
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Order Instructions (Roman Urdu / English) */}
+              <div className="bg-white/90 rounded-xl p-3 border border-emerald-200/80 text-xs text-slate-700 space-y-1.5 font-medium shadow-2xs">
+                <div className="flex items-center gap-1.5 text-slate-900 font-bold">
+                  <span>📲 Khareedne Ka Tareeqa (3 Simple Steps):</span>
+                </div>
+                <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600">
+                  <li>Neeche <strong>"Order on WhatsApp"</strong> button par click karein.</li>
+                  <li>WhatsApp par auto-filled order message direct MA LEGEND ko send karein.</li>
+                  <li>Payment transfer (EasyPaisa / JazzCash / SadaPay / Binance) karein aur instant access receive karein!</li>
+                </ol>
+              </div>
+
+              {/* Big Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <button
+                  onClick={handleOrderWhatsApp}
+                  className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" />
+                  <span>Direct WhatsApp Order Karein {tool.price ? `(${tool.price})` : ''} 💬</span>
+                </button>
+
+                <button
+                  onClick={handleCopyOrderText}
+                  className="w-full sm:w-auto py-3 px-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0"
+                  title="Copy Order Message"
+                >
+                  {copiedOrder ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                  <span>{copiedOrder ? 'Copied!' : 'Copy Msg'}</span>
+                </button>
+              </div>
+
+              {/* Accepted Payments Strip */}
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-emerald-200/50 text-[10px] font-bold text-slate-600">
+                <span className="text-slate-500 uppercase tracking-wider text-[9px]">Accepted Payment Methods:</span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">🟢 EasyPaisa</span>
+                  <span className="px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-300 font-bold">🔴 JazzCash</span>
+                  <span className="px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-300 font-bold">💳 SadaPay</span>
+                  <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-300 font-bold">🟡 Binance Pay</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <div className="space-y-2">
@@ -234,15 +350,32 @@ export default function ToolDetailModal({
                 </div>
               </div>
             ) : (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                <span className="text-xs text-slate-600 font-medium">Official URL: <strong className="text-slate-900">{tool.url}</strong></span>
-                <button
-                  onClick={handleCopyLink}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-red-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-                </button>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <span className="text-xs text-slate-600 font-medium truncate">
+                  {isPaid ? 'Demo / Website URL:' : 'Official URL:'} <strong className="text-slate-900 ml-1">{tool.url}</strong>
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {isPaid && tool.url && (
+                    <button
+                      onClick={() => {
+                        onVisitTool(tool);
+                        window.open(tool.url, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
+                      title="Visit Demo / Official Website"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Demo Link</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-red-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

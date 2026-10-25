@@ -11,6 +11,8 @@ export interface Tool {
   category: string;
   tags: string[];
   pricing: PricingType;
+  price?: string;
+  whatsappNumber?: string;
   featured: boolean;
   status: 'published' | 'draft';
   views: number;
@@ -39,6 +41,7 @@ export interface SiteSettings {
   authorName: string;
   brandTag: string;
   whatsappUrl?: string;
+  whatsappNumber?: string;
   youtubeUrl?: string;
   contactEmail?: string;
   telegramUrl?: string;

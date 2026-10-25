@@ -269,6 +269,20 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-medium text-emerald-400 mb-1">
+                    WhatsApp Order Phone Number (For Pro Tools)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.whatsappNumber || ''}
+                    placeholder="e.g. 923001234567 (with country code)"
+                    onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="w-full bg-slate-950 border border-emerald-900/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Used when users click "Buy Pro on WhatsApp"</span>
+                </div>
+
+                <div>
                   <label className="block text-xs font-medium text-red-400 mb-1">YouTube Channel Link</label>
                   <input
                     type="url"

@@ -23,6 +23,8 @@ export default function ToolEditorModal({
   const [iconUrl, setIconUrl] = useState('');
   const [category, setCategory] = useState('ai');
   const [pricing, setPricing] = useState<PricingType>('Freemium');
+  const [price, setPrice] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [description, setDescription] = useState('');
   const [longDescription, setLongDescription] = useState('');
   const [tagsStr, setTagsStr] = useState('');
@@ -42,6 +44,8 @@ export default function ToolEditorModal({
       setIconUrl(toolToEdit.iconUrl || '');
       setCategory(toolToEdit.category || 'ai');
       setPricing(toolToEdit.pricing || 'Freemium');
+      setPrice(toolToEdit.price || '');
+      setWhatsappNumber(toolToEdit.whatsappNumber || '');
       setDescription(toolToEdit.description || '');
       setLongDescription(toolToEdit.longDescription || '');
       setTagsStr((toolToEdit.tags || []).join(', '));
@@ -55,6 +59,8 @@ export default function ToolEditorModal({
       setIconUrl('');
       setCategory('ai');
       setPricing('Freemium');
+      setPrice('');
+      setWhatsappNumber('');
       setDescription('');
       setLongDescription('');
       setTagsStr('AI, Tools');
@@ -106,6 +112,7 @@ export default function ToolEditorModal({
 
       if (toolToEdit) {
         // Update existing
+        const isPaidOrPro = pricing === 'Pro' || pricing === 'VIP' || pricing === 'Paid';
         const updates: Partial<Tool> = {
           name: name.trim(),
           slug,
@@ -113,6 +120,8 @@ export default function ToolEditorModal({
           iconUrl: cleanIcon,
           category,
           pricing,
+          price: isPaidOrPro ? price.trim() || undefined : undefined,
+          whatsappNumber: whatsappNumber.trim() || undefined,
           description: description.trim(),
           longDescription: longDescription.trim() || description.trim(),
           tags,
@@ -126,6 +135,7 @@ export default function ToolEditorModal({
         onSaved({ ...toolToEdit, ...updates });
       } else {
         // Create new
+        const isPaidOrPro = pricing === 'Pro' || pricing === 'VIP' || pricing === 'Paid';
         const created = await createTool({
           name: name.trim(),
           slug,
@@ -133,6 +143,8 @@ export default function ToolEditorModal({
           iconUrl: cleanIcon,
           category,
           pricing,
+          price: isPaidOrPro ? price.trim() || undefined : undefined,
+          whatsappNumber: whatsappNumber.trim() || undefined,
           description: description.trim(),
           longDescription: longDescription.trim() || description.trim(),
           tags,
@@ -295,6 +307,49 @@ export default function ToolEditorModal({
               />
             </div>
           </div>
+
+          {/* Pro / VIP Direct WhatsApp Order Box */}
+          {(pricing === 'Pro' || pricing === 'VIP' || pricing === 'Paid') && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-slate-950 border border-amber-500/40 space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  ⭐ Pro / VIP Direct WhatsApp Order Settings
+                </span>
+                <span className="text-[10px] text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
+                  Method #1 Active
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                    Tool Price (e.g. Rs 500, Rs 1200, $15)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Rs 500"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-400 font-bold text-amber-300 placeholder-slate-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                    Order WhatsApp Number (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 923001234567 (Blank = Site WhatsApp)"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-400 font-mono placeholder-slate-600"
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Customer jab "Buy on WhatsApp" par click karega to is tool ka naam aur price auto-filled message me aapke WhatsApp par aayegi!
+              </p>
+            </div>
+          )}
 
           {/* Description */}
           <div>
