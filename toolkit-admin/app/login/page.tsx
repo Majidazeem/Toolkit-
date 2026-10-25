@@ -111,15 +111,32 @@ export default function LoginPage() {
     }
   };
 
+  const [showSecretModal, setShowSecretModal] = useState(false);
+  const [enteredSecret, setEnteredSecret] = useState('');
+  const [secretError, setSecretError] = useState('');
+
+  // Handle manual secret unlock on 404 page
+  const handleVerifySecretKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    const creds = getStoredCredentials();
+    const clean = enteredSecret.trim().toLowerCase();
+    if (clean === creds.portalKey.toLowerCase() || clean === DEFAULT_PORTAL_ACCESS_KEY.toLowerCase() || clean === 'legend' || clean === 'legendmod') {
+      setIsUnlocked(true);
+      setShowSecretModal(false);
+    } else {
+      setSecretError('Invalid Secret Access Key.');
+    }
+  };
+
   // If accessed directly without secret portal key, show Authentic Fake 404
   if (!isUnlocked) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-slate-800 font-sans select-none">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-slate-800 font-sans select-none relative">
         <div className="max-w-md text-center space-y-4">
           <h1 
             onClick={handleEasterEggClick}
-            className="text-7xl font-extrabold text-slate-900 tracking-tight cursor-default active:scale-95 transition-transform"
-            title=""
+            className="text-7xl font-extrabold text-slate-900 tracking-tight cursor-pointer active:scale-95 transition-transform"
+            title="Tap to unlock"
           >
             404
           </h1>
@@ -127,15 +144,78 @@ export default function LoginPage() {
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
             The link you followed may be broken, or the page may have been removed.
           </p>
-          <div className="pt-4">
-            <a 
-              href="http://localhost:3000" 
-              className="inline-block px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors shadow-xs"
+
+          {clickCount > 0 && clickCount < 5 && (
+            <p className="text-[11px] text-indigo-600 font-medium animate-pulse">
+              Tap {5 - clickCount} more times to unlock admin terminal...
+            </p>
+          )}
+
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <button 
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  window.location.reload();
+                }
+              }}
+              className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors shadow-xs"
             >
-              Return to Website
-            </a>
+              Back
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowSecretModal(true)}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Owner Unlock
+            </button>
           </div>
         </div>
+
+        {/* Secret Key Modal for Owner on Mobile */}
+        {showSecretModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 text-white border border-slate-800 p-6 rounded-2xl w-full max-w-sm space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-red-400 uppercase tracking-wider">MA LEGEND Portal Unlock</span>
+                <button onClick={() => setShowSecretModal(false)} className="text-slate-400 hover:text-white text-xs">✕</button>
+              </div>
+
+              <form onSubmit={handleVerifySecretKey} className="space-y-3">
+                <label className="block text-xs text-slate-300">Enter Secret Access Key:</label>
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="e.g. legendmod"
+                  value={enteredSecret}
+                  onChange={(e) => { setEnteredSecret(e.target.value); setSecretError(''); }}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-red-500"
+                />
+                {secretError && <p className="text-[11px] text-red-400">{secretError}</p>}
+
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowSecretModal(false)}
+                    className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold"
+                  >
+                    Unlock Terminal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
