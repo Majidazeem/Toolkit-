@@ -292,6 +292,33 @@ export const INITIAL_TOOLS: Tool[] = [
     createdAt: '2026-03-25T14:00:00.000Z',
     author: 'MA LEGEND',
     features: ['Exclusive Private Mods', 'VIP WhatsApp/Telegram Group', 'Lifetime 1-on-1 Support', 'Priority Tool Updates']
+  },
+  {
+    id: 'tool-lh-hosting',
+    name: 'LH Web Hosting & FileShare Pro',
+    slug: 'lh-web-hosting-fileshare-pro',
+    description: 'Free Cloud Web Hosting, Custom Suffix Domains (.legend, .ml), APK Sharing Hub & Media Cloud.',
+    longDescription: 'LH Hosting & FileShare Pro is an all-in-one web portal crafted by MA LEGEND. Deploy live HTML/CSS websites with custom suffixes, generate instant preview sandboxes, distribute Android APKs with download counters, and share cloud images/files with 100% free uptime.',
+    url: '#hosting',
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png',
+    category: 'utilities',
+    tags: ['Hosting', 'Free Domain', 'APK Hub', 'MA LEGEND', 'Cloud'],
+    pricing: 'VIP',
+    price: 'Free / VIP',
+    featured: true,
+    status: 'published',
+    views: 7850,
+    clicks: 3410,
+    rating: 5.0,
+    createdAt: '2026-03-26T10:00:00.000Z',
+    author: 'MA LEGEND',
+    features: [
+      'Custom Suffix Domains (.legend, .ml, .lh, .site, .web, .host)',
+      'Live Browser Sandbox & Code Editor',
+      'APK Distribution Hub with Version Tracking',
+      'Instant Media Cloud for Images, Audio & Files',
+      'Zero Server Setup & Free Forever'
+    ]
   }
 ];
 

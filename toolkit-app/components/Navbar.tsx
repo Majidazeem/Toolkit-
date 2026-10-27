@@ -11,7 +11,8 @@ import {
   Youtube,
   Sparkles,
   Eye,
-  Users
+  Users,
+  Globe
 } from 'lucide-react';
 import { SiteSettings, SiteTraffic } from '../lib/types';
 import AnimatedCounter from './AnimatedCounter';
@@ -21,8 +22,8 @@ interface NavbarProps {
   traffic?: SiteTraffic;
   bookmarkedCount: number;
   onOpenBookmarks: () => void;
-  onSelectTab: (tab: 'all' | 'utilities') => void;
-  activeTab: 'all' | 'utilities';
+  onSelectTab: (tab: 'all' | 'utilities' | 'hosting') => void;
+  activeTab: 'all' | 'utilities' | 'hosting';
 }
 
 export default function Navbar({
@@ -136,7 +137,7 @@ export default function Navbar({
           <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
             <button
               onClick={() => onSelectTab('all')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                 activeTab === 'all'
                   ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
                   : 'text-slate-700 hover:text-slate-900 hover:bg-white'
@@ -146,7 +147,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => onSelectTab('utilities')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all ${
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all ${
                 activeTab === 'utilities'
                   ? 'bg-red-600 text-white shadow-sm shadow-red-600/30'
                   : 'text-slate-700 hover:text-slate-900 hover:bg-white'
@@ -154,6 +155,18 @@ export default function Navbar({
             >
               <Wrench className="w-3.5 h-3.5" />
               Instant Utilities
+            </button>
+            <button
+              onClick={() => onSelectTab('hosting')}
+              className={`px-3 py-1.5 text-xs font-black rounded-lg flex items-center gap-1.5 transition-all ${
+                activeTab === 'hosting'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm shadow-purple-600/30'
+                  : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>LH Web Hosting</span>
+              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-400 text-slate-950 font-black leading-none">VIP</span>
             </button>
           </div>
 
@@ -226,6 +239,14 @@ export default function Navbar({
             >
               <Wrench className="w-3.5 h-3.5" />
               Instant Browser Utilities
+            </button>
+            <button
+              onClick={() => { onSelectTab('hosting'); setMobileMenuOpen(false); }}
+              className={`px-3 py-2 text-xs font-bold rounded-lg text-left flex items-center gap-2 ${activeTab === 'hosting' ? 'bg-purple-50 text-purple-700 font-extrabold' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <Globe className="w-3.5 h-3.5 text-purple-600" />
+              <span>LH Web Hosting &amp; FileShare</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black ml-auto">VIP</span>
             </button>
 
             <div className="flex items-center gap-2 pt-2 border-t border-slate-200">

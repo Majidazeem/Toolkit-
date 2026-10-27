@@ -8,6 +8,7 @@ import ToolCard from '../components/ToolCard';
 import ToolDetailModal from '../components/ToolDetailModal';
 import BookmarksModal from '../components/BookmarksModal';
 import BuiltInTools from '../components/BuiltInTools';
+import LHHosting from '../components/LHHosting';
 import Footer from '../components/Footer';
 import { Tool, Category, SiteSettings, SiteTraffic } from '../lib/types';
 import { 
@@ -24,7 +25,7 @@ import {
   INITIAL_TRAFFIC
 } from '../lib/firebase';
 import { INITIAL_CATEGORIES, INITIAL_SETTINGS, INITIAL_TOOLS } from '../lib/seedData';
-import { Frown, Wrench } from 'lucide-react';
+import { Frown, Wrench, Globe } from 'lucide-react';
 
 export default function HomePage() {
   const [tools, setTools] = useState<Tool[]>(INITIAL_TOOLS);
@@ -33,8 +34,8 @@ export default function HomePage() {
   const [traffic, setTraffic] = useState<SiteTraffic>(INITIAL_TRAFFIC);
   const [loading, setLoading] = useState(true);
 
-  // Active navigation tab: 'all' or 'utilities'
-  const [activeTab, setActiveTab] = useState<'all' | 'utilities'>('all');
+  // Active navigation tab: 'all', 'utilities', or 'hosting'
+  const [activeTab, setActiveTab] = useState<'all' | 'utilities' | 'hosting'>('all');
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,6 +108,11 @@ export default function HomePage() {
   const handleVisitTool = (tool: Tool) => {
     incrementToolClicks(tool.id);
     setTools(prev => prev.map(t => t.id === tool.id ? { ...t, clicks: (t.clicks || 0) + 1 } : t));
+    if (tool.url === '#hosting' || tool.id === 'tool-lh-hosting') {
+      setActiveTab('hosting');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (typeof window !== 'undefined') {
       window.open(tool.url, '_blank', 'noopener,noreferrer');
     }
@@ -295,12 +301,43 @@ export default function HomePage() {
                 </button>
               </div>
 
+              {/* VIP LH Hosting & FileShare Banner */}
+              <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-900 border border-purple-500/30 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-amber-400" /> VIP LH Hosting & FileShare Pro
+                  </span>
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tight">
+                    Publish Free Websites & Share APKs / Media Instantly
+                  </h3>
+                  <p className="text-xs text-purple-200 max-w-xl font-medium">
+                    Host HTML/CSS websites with custom suffixes (.legend, .ml, .lh, .site), generate live sandbox previews, and share APKs with direct download cards. Crafted by MA LEGEND.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setActiveTab('hosting');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-md shadow-amber-500/30 transition-all shrink-0 hover:scale-105 flex items-center gap-1.5"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  Launch LH Hosting
+                </button>
+              </div>
+
             </section>
           </>
-        ) : (
+        ) : activeTab === 'utilities' ? (
           /* Instant Utilities Tab View */
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <BuiltInTools />
+          </section>
+        ) : (
+          /* LH Web Hosting & FileShare Pro Tab View */
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <LHHosting />
           </section>
         )}
       </main>
