@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { INITIAL_TOOLS, INITIAL_CATEGORIES } from '../lib/seedData';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://legendmod.net';
+  const baseUrl = 'https://www.legendmod.net';
   const now = new Date();
 
   // Primary Site Routes

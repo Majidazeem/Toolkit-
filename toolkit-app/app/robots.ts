@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin', '/api/'],
       },
     ],
-    sitemap: 'https://legendmod.net/sitemap.xml',
-    host: 'https://legendmod.net',
+    sitemap: 'https://www.legendmod.net/sitemap.xml',
+    host: 'https://www.legendmod.net',
   };
 }

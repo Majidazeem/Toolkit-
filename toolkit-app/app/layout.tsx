@@ -8,7 +8,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://legendmod.net'),
+  metadataBase: new URL('https://www.legendmod.net'),
   title: 'LEGEND MOD TOOLKIT - Official Platform by MA LEGEND',
   description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
   keywords: ['LEGEND MOD TOOLKIT', 'MA LEGEND', 'LEGEND MOD', 'legendmod.net', 'web hosting', 'mods', 'free tools', 'developer toolkit'],
@@ -29,20 +29,20 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://legendmod.net',
+    url: 'https://www.legendmod.net',
     siteName: 'LEGEND MOD TOOLKIT',
     title: 'LEGEND MOD TOOLKIT - Official Platform by MA LEGEND',
     description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
     images: [
       {
-        url: 'https://legendmod.net/og-image.jpg',
+        url: 'https://www.legendmod.net/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'LEGEND MOD TOOLKIT - Curated with Power by MA LEGEND',
         type: 'image/jpeg'
       },
       {
-        url: 'https://legendmod.net/og-square.jpg',
+        url: 'https://www.legendmod.net/og-square.jpg',
         width: 600,
         height: 600,
         alt: 'LEGEND MOD Crest Logo - MA LEGEND',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'LEGEND MOD TOOLKIT - Official Platform by MA LEGEND',
     description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
-    images: ['https://legendmod.net/og-image.jpg'],
+    images: ['https://www.legendmod.net/og-image.jpg'],
     creator: '@legendmod407'
   },
   robots: {
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://legendmod.net',
+    canonical: 'https://www.legendmod.net',
   },
   verification: {
     google: 'google0312b2665d8af901',
@@ -87,19 +87,19 @@ export default function RootLayout({
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': 'https://legendmod.net/#website',
-        url: 'https://legendmod.net/',
+        '@id': 'https://www.legendmod.net/#website',
+        url: 'https://www.legendmod.net/',
         name: 'LEGEND MOD TOOLKIT',
         description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
         inLanguage: 'en-US',
         publisher: {
           '@type': 'Organization',
-          '@id': 'https://legendmod.net/#organization',
+          '@id': 'https://www.legendmod.net/#organization',
           name: 'LEGEND MOD',
-          url: 'https://legendmod.net/',
+          url: 'https://www.legendmod.net/',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://legendmod.net/logo.png',
+            url: 'https://www.legendmod.net/logo.png',
             width: 512,
             height: 512,
           },
@@ -110,16 +110,16 @@ export default function RootLayout({
         },
         potentialAction: {
           '@type': 'SearchAction',
-          target: 'https://legendmod.net/?q={search_term_string}',
+          target: 'https://www.legendmod.net/?q={search_term_string}',
           'query-input': 'required name=search_term_string',
         },
       },
       {
         '@type': 'Organization',
-        '@id': 'https://legendmod.net/#organization',
+        '@id': 'https://www.legendmod.net/#organization',
         name: 'LEGEND MOD',
-        url: 'https://legendmod.net/',
-        logo: 'https://legendmod.net/logo.png',
+        url: 'https://www.legendmod.net/',
+        logo: 'https://www.legendmod.net/logo.png',
         founder: {
           '@type': 'Person',
           name: 'MA LEGEND',
@@ -136,8 +136,8 @@ export default function RootLayout({
         {/* Google Search Console Verification Meta Tag */}
         <meta name="google-site-verification" content="google0312b2665d8af901" />
         {/* Direct OpenGraph fallback meta tags for WhatsApp & Telegram */}
-        <meta property="og:image" content="https://legendmod.net/og-image.jpg" />
-        <meta property="og:image:secure_url" content="https://legendmod.net/og-image.jpg" />
+        <meta property="og:image" content="https://www.legendmod.net/og-image.jpg" />
+        <meta property="og:image:secure_url" content="https://www.legendmod.net/og-image.jpg" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
