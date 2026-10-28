@@ -114,10 +114,12 @@ export default function Navbar({
               onClick={() => onSelectTab('all')} 
               className="flex items-center gap-2.5 text-left group focus:outline-none"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform">
-                <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                  <Flame className="w-5 h-5 text-red-600 fill-red-600/20" />
-                </div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="LEGEND MOD Logo" 
+                  className="w-full h-full object-cover rounded-[10px]"
+                />
               </div>
               <div>
                 <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-1.5 leading-none">

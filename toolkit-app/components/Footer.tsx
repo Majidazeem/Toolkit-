@@ -18,10 +18,8 @@ export default function Footer({ settings, onSelectCategory }: FooterProps) {
           {/* Brand & Creator Info */}
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-sm">
-                <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                  <Flame className="w-4 h-4 text-red-600 fill-red-600/20" />
-                </div>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-sm overflow-hidden">
+                <img src="/logo.png" alt="LEGEND MOD Logo" className="w-full h-full object-cover rounded-[10px]" />
               </div>
               <div>
                 <span className="text-base font-black text-slate-900 uppercase tracking-tight">

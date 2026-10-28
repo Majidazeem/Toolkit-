@@ -68,7 +68,7 @@ export default function Hero({
         {/* Creator Badge & Live Traffic Pill */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-red-200 text-slate-800 text-xs font-semibold shadow-xs hover:border-red-400 transition-colors animate-pulse-border">
-            <Flame className="w-3.5 h-3.5 text-red-600 fill-red-600 animate-flame-flicker" />
+            <img src="/logo.png" alt="LEGEND MOD Logo" className="w-4 h-4 rounded-full object-cover shrink-0" />
             <span>Curated by <strong className="text-red-600 font-extrabold">{settings.authorName || 'MA LEGEND'}</strong></span>
             <span className="text-[10px] uppercase font-black px-1.5 py-0.5 rounded bg-red-600 text-white shadow-xs">
               {settings.brandTag || 'LEGEND MOD'}
