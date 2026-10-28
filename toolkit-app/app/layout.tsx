@@ -71,6 +71,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://legendmod.net',
   },
+  verification: {
+    google: 'google0312b2665d8af901',
+  },
   category: 'technology',
 };
 
@@ -130,6 +133,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Google Search Console Verification Meta Tag */}
+        <meta name="google-site-verification" content="google0312b2665d8af901" />
         {/* Direct OpenGraph fallback meta tags for WhatsApp & Telegram */}
         <meta property="og:image" content="https://legendmod.net/og-image.jpg" />
         <meta property="og:image:secure_url" content="https://legendmod.net/og-image.jpg" />
