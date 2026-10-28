@@ -56,7 +56,22 @@ export const metadata: Metadata = {
     description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
     images: ['https://legendmod.net/og-image.jpg'],
     creator: '@legendmod407'
-  }
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://legendmod.net',
+  },
+  category: 'technology',
 };
 
 export default function RootLayout({
@@ -64,6 +79,52 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://legendmod.net/#website',
+        url: 'https://legendmod.net/',
+        name: 'LEGEND MOD TOOLKIT',
+        description: 'Discover elite AI models, developer tools, VIP mods, free LH web hosting & utilities curated with power by MA LEGEND.',
+        inLanguage: 'en-US',
+        publisher: {
+          '@type': 'Organization',
+          '@id': 'https://legendmod.net/#organization',
+          name: 'LEGEND MOD',
+          url: 'https://legendmod.net/',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://legendmod.net/logo.png',
+            width: 512,
+            height: 512,
+          },
+          sameAs: [
+            'https://whatsapp.com/channel/0029VarS46O3QxRtTZO0z60x',
+            'https://www.youtube.com/@legendmod407',
+          ],
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://legendmod.net/?q={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Organization',
+        '@id': 'https://legendmod.net/#organization',
+        name: 'LEGEND MOD',
+        url: 'https://legendmod.net/',
+        logo: 'https://legendmod.net/logo.png',
+        founder: {
+          '@type': 'Person',
+          name: 'MA LEGEND',
+        },
+      },
+    ],
+  };
+
   return (
     <html lang="en">
       <head>
@@ -76,6 +137,11 @@ export default function RootLayout({
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="LEGEND MOD TOOLKIT by MA LEGEND" />
+        {/* JSON-LD Structured Data Schema for Google Rich Snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-red-600 selection:text-white">
         {children}
