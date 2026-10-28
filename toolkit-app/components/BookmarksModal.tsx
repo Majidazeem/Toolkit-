@@ -75,14 +75,14 @@ export default function BookmarksModal({
                   >
                     <img
                       src={tool.iconUrl || 'https://via.placeholder.com/32'}
-                      alt={tool.name}
+                      alt={tool.name || 'Tool'}
                       className="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"
                     />
                     <div className="min-w-0">
                       <h4 className="text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors truncate">
-                        {tool.name}
+                        {tool.name || 'Tool'}
                       </h4>
-                      <p className="text-[11px] text-slate-500 truncate">{tool.description}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{tool.description || ''}</p>
                     </div>
                   </div>
 

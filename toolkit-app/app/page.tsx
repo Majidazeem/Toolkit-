@@ -146,26 +146,30 @@ export default function HomePage() {
   // Filtered & Sorted Tools
   const filteredTools = useMemo(() => {
     return tools.filter((tool) => {
+      if (!tool || !tool.name) return false;
       if (tool.status && tool.status !== 'published') return false;
 
-      if (selectedCategory !== 'all' && tool.category.toLowerCase() !== selectedCategory.toLowerCase()) {
+      const toolCategory = tool.category || '';
+      if (selectedCategory !== 'all' && toolCategory.toLowerCase() !== selectedCategory.toLowerCase()) {
         return false;
       }
 
-      if (selectedPricing !== 'all' && tool.pricing !== selectedPricing) {
+      const toolPricing = tool.pricing || 'Free';
+      if (selectedPricing !== 'all' && toolPricing !== selectedPricing) {
         return false;
       }
 
-      if (selectedTag && !tool.tags.some(t => t.toLowerCase() === selectedTag.toLowerCase())) {
+      const toolTags = Array.isArray(tool.tags) ? tool.tags : [];
+      if (selectedTag && !toolTags.some(t => t && t.toLowerCase() === selectedTag.toLowerCase())) {
         return false;
       }
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesName = tool.name.toLowerCase().includes(q);
-        const matchesDesc = tool.description.toLowerCase().includes(q);
-        const matchesTag = tool.tags.some(t => t.toLowerCase().includes(q));
-        const matchesAuthor = tool.author?.toLowerCase().includes(q);
+        const matchesName = (tool.name || '').toLowerCase().includes(q);
+        const matchesDesc = (tool.description || '').toLowerCase().includes(q);
+        const matchesTag = toolTags.some(t => t && t.toLowerCase().includes(q));
+        const matchesAuthor = (tool.author || '').toLowerCase().includes(q);
         if (!matchesName && !matchesDesc && !matchesTag && !matchesAuthor) {
           return false;
         }
@@ -176,8 +180,8 @@ export default function HomePage() {
       if (sortBy === 'popular') return (b.views || 0) - (a.views || 0);
       if (sortBy === 'clicks') return (b.clicks || 0) - (a.clicks || 0);
       if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
       return 0;
     });
   }, [tools, selectedCategory, selectedPricing, selectedTag, searchQuery, sortBy]);

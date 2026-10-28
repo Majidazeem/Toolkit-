@@ -313,11 +313,11 @@ export default function ToolDetailModal({
           </div>
 
           {/* Key Features Checklist */}
-          {tool.features && tool.features.length > 0 && (
+          {Array.isArray(tool.features) && tool.features.length > 0 && (
             <div className="space-y-2.5">
               <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Key Highlights</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {tool.features.map((feat, i) => (
+                {(tool.features || []).map((feat, i) => (
                   <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium">
                     <Check className="w-4 h-4 text-red-600 shrink-0" />
                     <span>{feat}</span>
@@ -331,7 +331,7 @@ export default function ToolDetailModal({
           <div className="space-y-2">
             <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Tags</h4>
             <div className="flex flex-wrap gap-2">
-              {tool.tags.map((tag) => (
+              {(tool.tags || []).map((tag) => (
                 <span
                   key={tag}
                   className="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200"

@@ -276,14 +276,18 @@ export default function LHHosting() {
   const saveSites = (sites: PublishedSite[]) => {
     setPublishedSites(sites);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('legend_published_sites', JSON.stringify(sites));
+      try {
+        localStorage.setItem('legend_published_sites', JSON.stringify(sites));
+      } catch (e) {}
     }
   };
 
   const saveFiles = (files: SharedFile[]) => {
     setSharedFiles(files);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('legend_shared_files', JSON.stringify(files));
+      try {
+        localStorage.setItem('legend_shared_files', JSON.stringify(files));
+      } catch (e) {}
     }
   };
 

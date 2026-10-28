@@ -81,13 +81,13 @@ export default function ToolCard({
             {!imgError && tool.iconUrl ? (
               <img
                 src={tool.iconUrl}
-                alt={tool.name}
+                alt={tool.name || 'Tool'}
                 className="w-full h-full object-contain"
                 onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-red-600 to-amber-600 rounded-lg flex items-center justify-center text-white font-black text-base">
-                {tool.name.charAt(0)}
+                {(tool.name || '?').charAt(0).toUpperCase()}
               </div>
             )}
           </div>
@@ -181,13 +181,13 @@ export default function ToolCard({
             {!imgError && tool.iconUrl ? (
               <img
                 src={tool.iconUrl}
-                alt={tool.name}
+                alt={tool.name || 'Tool'}
                 className="w-full h-full object-contain"
                 onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-red-600 to-amber-600 rounded-lg flex items-center justify-center text-white font-black text-xs sm:text-base">
-                {tool.name.charAt(0)}
+                {(tool.name || '?').charAt(0).toUpperCase()}
               </div>
             )}
           </div>

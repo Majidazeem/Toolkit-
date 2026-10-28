@@ -51,6 +51,60 @@ const LOCAL_STORAGE_KEY_TOOLS = 'yalla_toolkit_tools_cache';
 const LOCAL_STORAGE_KEY_SETTINGS = 'yalla_toolkit_settings_cache';
 const LOCAL_STORAGE_KEY_BOOKMARKS = 'yalla_toolkit_bookmarks';
 
+// Safe Local & Session Storage Wrappers (Prevent mobile & incognito crashes)
+function safeStorageGet(key: string, isSession = false): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return isSession ? sessionStorage.getItem(key) : localStorage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeStorageSet(key: string, val: string, isSession = false): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (isSession) {
+      sessionStorage.setItem(key, val);
+    } else {
+      localStorage.setItem(key, val);
+    }
+  } catch (e) {}
+}
+
+// Ensure tool always has required properties and merges with initial fallback if needed
+export function sanitizeTool(key: string, item: any): Tool | null {
+  if (!item || typeof item !== 'object') return null;
+  const id = item.id || key;
+  const initialMatch = INITIAL_TOOLS.find(t => t.id === id);
+
+  const name = item.name || initialMatch?.name;
+  if (!name) return null;
+
+  return {
+    id,
+    name,
+    slug: item.slug || initialMatch?.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    description: item.description || initialMatch?.description || '',
+    longDescription: item.longDescription || initialMatch?.longDescription || '',
+    url: item.url || initialMatch?.url || '#',
+    iconUrl: item.iconUrl || initialMatch?.iconUrl || '',
+    category: item.category || initialMatch?.category || 'utilities',
+    tags: Array.isArray(item.tags) ? item.tags : (initialMatch?.tags || []),
+    pricing: item.pricing || initialMatch?.pricing || 'Free',
+    price: item.price || initialMatch?.price,
+    whatsappNumber: item.whatsappNumber || initialMatch?.whatsappNumber,
+    featured: Boolean(item.featured ?? initialMatch?.featured ?? false),
+    status: (item.status === 'draft') ? 'draft' : 'published',
+    views: typeof item.views === 'number' ? item.views : (initialMatch?.views || 1),
+    clicks: typeof item.clicks === 'number' ? item.clicks : (initialMatch?.clicks || 0),
+    rating: typeof item.rating === 'number' ? item.rating : (initialMatch?.rating || 5.0),
+    createdAt: item.createdAt || initialMatch?.createdAt || new Date().toISOString(),
+    features: Array.isArray(item.features) ? item.features : (initialMatch?.features || []),
+    author: item.author || initialMatch?.author || 'MA LEGEND'
+  };
+}
+
 // ==========================================
 // TOOLS MANAGEMENT VIA FIREBASE REALTIME DB
 // ==========================================
@@ -65,16 +119,14 @@ export async function getPublishedTools(): Promise<Tool[]> {
       const data = snapshot.val();
       const remoteTools: Tool[] = [];
       Object.keys(data).forEach((key) => {
-        const item = data[key];
-        if (item && (!item.status || item.status === 'published')) {
-          remoteTools.push({ ...item, id: item.id || key });
+        const sanitized = sanitizeTool(key, data[key]);
+        if (sanitized && (!sanitized.status || sanitized.status === 'published')) {
+          remoteTools.push(sanitized);
         }
       });
 
       if (remoteTools.length > 0) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(remoteTools));
-        }
+        safeStorageSet(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(remoteTools));
         return remoteTools;
       }
     } else {
@@ -89,13 +141,12 @@ export async function getPublishedTools(): Promise<Tool[]> {
   }
 
   // 2. Check localStorage cache
-  if (typeof window !== 'undefined') {
-    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_TOOLS);
-    if (cached) {
-      try {
-        return JSON.parse(cached);
-      } catch (e) {}
-    }
+  const cached = safeStorageGet(LOCAL_STORAGE_KEY_TOOLS);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
   }
 
   // 3. Fallback to initial seed data
@@ -112,13 +163,13 @@ export function subscribeToLiveTools(onUpdate: (tools: Tool[]) => void): () => v
       const data = snapshot.val();
       const toolsList: Tool[] = [];
       Object.keys(data).forEach((key) => {
-        const item = data[key];
-        if (item && (!item.status || item.status === 'published')) {
-          toolsList.push({ ...item, id: item.id || key });
+        const sanitized = sanitizeTool(key, data[key]);
+        if (sanitized && (!sanitized.status || sanitized.status === 'published')) {
+          toolsList.push(sanitized);
         }
       });
       if (toolsList.length > 0) {
-        localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(toolsList));
+        safeStorageSet(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(toolsList));
         onUpdate(toolsList);
         return;
       }
@@ -164,16 +215,16 @@ export async function incrementToolClicks(toolId: string): Promise<void> {
       clicks: rtdbIncrement(1)
     });
   } catch (err) {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem(LOCAL_STORAGE_KEY_TOOLS);
-      if (cached) {
+    const cached = safeStorageGet(LOCAL_STORAGE_KEY_TOOLS);
+    if (cached) {
+      try {
         const list: Tool[] = JSON.parse(cached);
         const idx = list.findIndex(t => t.id === toolId);
         if (idx !== -1) {
           list[idx].clicks = (list[idx].clicks || 0) + 1;
-          localStorage.setItem(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(list));
+          safeStorageSet(LOCAL_STORAGE_KEY_TOOLS, JSON.stringify(list));
         }
-      }
+      } catch (e) {}
     }
   }
 }
@@ -184,22 +235,18 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     const snap = await get(ref(rtdb, 'site_settings'));
     if (snap.exists()) {
       const data = snap.val() as SiteSettings;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
-      }
+      safeStorageSet(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
       return data;
     }
   } catch (err) {
     console.warn('Realtime database settings notice:', err);
   }
 
-  if (typeof window !== 'undefined') {
-    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_SETTINGS);
-    if (cached) {
-      try {
-        return JSON.parse(cached);
-      } catch (e) {}
-    }
+  const cached = safeStorageGet(LOCAL_STORAGE_KEY_SETTINGS);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch (e) {}
   }
 
   return INITIAL_SETTINGS;
@@ -213,7 +260,7 @@ export function subscribeToLiveSettings(onUpdate: (settings: SiteSettings) => vo
   const unsubscribe = onValue(settingsRef, (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.val() as SiteSettings;
-      localStorage.setItem(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
+      safeStorageSet(LOCAL_STORAGE_KEY_SETTINGS, JSON.stringify(data));
       onUpdate(data);
     }
   }, (err) => {
@@ -227,20 +274,20 @@ export function subscribeToLiveSettings(onUpdate: (settings: SiteSettings) => vo
 
 // User bookmarks helpers
 export function getSavedBookmarks(): string[] {
-  if (typeof window === 'undefined') return [];
+  const data = safeStorageGet(LOCAL_STORAGE_KEY_BOOKMARKS);
+  if (!data) return [];
   try {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BOOKMARKS) || '[]');
+    return JSON.parse(data);
   } catch {
     return [];
   }
 }
 
 export function toggleSavedBookmark(toolId: string): string[] {
-  if (typeof window === 'undefined') return [];
   const current = getSavedBookmarks();
   const exists = current.includes(toolId);
   const updated = exists ? current.filter(id => id !== toolId) : [...current, toolId];
-  localStorage.setItem(LOCAL_STORAGE_KEY_BOOKMARKS, JSON.stringify(updated));
+  safeStorageSet(LOCAL_STORAGE_KEY_BOOKMARKS, JSON.stringify(updated));
   return updated;
 }
 
@@ -259,32 +306,28 @@ export async function recordAndGetSiteViews(): Promise<SiteTraffic> {
   let views = 1;
   let online = 1;
 
-  if (typeof window !== 'undefined') {
-    const cached = localStorage.getItem(LOCAL_STORAGE_KEY_SITE_VIEWS);
-    if (cached) {
-      views = Math.max(1, parseInt(cached, 10));
-    }
+  const cached = safeStorageGet(LOCAL_STORAGE_KEY_SITE_VIEWS);
+  if (cached) {
+    views = Math.max(1, parseInt(cached, 10));
   }
 
   try {
     const statsRef = ref(rtdb, 'site_stats');
     
     // Increment once per browser session
-    if (typeof window !== 'undefined' && !sessionStorage.getItem(SESSION_STORAGE_KEY_VISITED)) {
+    if (!safeStorageGet(SESSION_STORAGE_KEY_VISITED, true)) {
       await update(statsRef, {
         totalViews: rtdbIncrement(1),
         lastVisitAt: new Date().toISOString()
       });
-      sessionStorage.setItem(SESSION_STORAGE_KEY_VISITED, 'true');
+      safeStorageSet(SESSION_STORAGE_KEY_VISITED, 'true', true);
     }
 
     const snap = await get(statsRef);
     if (snap.exists()) {
       const data = snap.val();
       views = data?.totalViews || views;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY_SITE_VIEWS, views.toString());
-      }
+      safeStorageSet(LOCAL_STORAGE_KEY_SITE_VIEWS, views.toString());
     }
   } catch (err) {
     console.warn('Realtime database sync warning:', err);
@@ -316,7 +359,7 @@ export function subscribeToRealtimeTraffic(
     onDisconnect(myPresenceRef).remove().catch(() => {});
     set(myPresenceRef, { 
       joinedAt: Date.now(),
-      userAgent: navigator.userAgent.substring(0, 40)
+      userAgent: (typeof navigator !== 'undefined' ? navigator.userAgent : 'User').substring(0, 40)
     }).catch(() => {});
   } catch (e) {
     // Graceful fallback
@@ -347,7 +390,7 @@ export function subscribeToRealtimeTraffic(
       const data = snapshot.val();
       if (typeof data?.totalViews === 'number') {
         currentViews = Math.max(1, data.totalViews);
-        localStorage.setItem(LOCAL_STORAGE_KEY_SITE_VIEWS, currentViews.toString());
+        safeStorageSet(LOCAL_STORAGE_KEY_SITE_VIEWS, currentViews.toString());
       }
     }
     onUpdate({
@@ -360,12 +403,12 @@ export function subscribeToRealtimeTraffic(
   });
 
   // Increment view once if not yet counted in this session
-  if (!sessionStorage.getItem(SESSION_STORAGE_KEY_VISITED)) {
+  if (!safeStorageGet(SESSION_STORAGE_KEY_VISITED, true)) {
     update(statsRef, {
       totalViews: rtdbIncrement(1),
       lastVisitAt: new Date().toISOString()
     }).then(() => {
-      sessionStorage.setItem(SESSION_STORAGE_KEY_VISITED, 'true');
+      safeStorageSet(SESSION_STORAGE_KEY_VISITED, 'true', true);
     }).catch(() => {});
   }
 
