@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, Bookmark, ExternalLink, Trash2, ArrowRight } from 'lucide-react';
+import { X, Bookmark, ExternalLink, Trash2, ArrowRight, MessageCircle } from 'lucide-react';
 import { Tool } from '../lib/types';
 
 interface BookmarksModalProps {
@@ -87,13 +87,24 @@ export default function BookmarksModal({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={() => onVisitTool(tool)}
-                      className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
-                      title="Open Website"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
+                    {tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' ? (
+                      <button
+                        onClick={() => { onClose(); onOpenDetails(tool); }}
+                        className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition-colors flex items-center gap-1"
+                        title="Order Pro Tool"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 fill-emerald-600/30" />
+                        <span>Order</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onVisitTool(tool)}
+                        className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                        title="Open Website"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => onRemoveBookmark(tool.id)}
                       className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"

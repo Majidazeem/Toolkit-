@@ -89,13 +89,14 @@ export default function ToolDetailModal({
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(tool.url);
+      const targetUrl = isPaid ? `https://www.legendmod.net/?tool=${tool.slug || tool.id}` : tool.url;
+      navigator.clipboard.writeText(targetUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  const shareText = encodeURIComponent(`Check out ${tool.name} on LEGEND MOD TOOLKIT: ${tool.url}`);
+  const shareText = encodeURIComponent(`Check out ${tool.name} on LEGEND MOD TOOLKIT: https://www.legendmod.net/?tool=${tool.slug || tool.id}`);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
@@ -342,61 +343,89 @@ export default function ToolDetailModal({
             </div>
           </div>
 
-          {/* Interactive Embed or Preview */}
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Live Preview</h4>
-              <button
-                onClick={() => setShowEmbed(!showEmbed)}
-                className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-                {showEmbed ? 'Hide Embed' : 'Load In-Browser Preview'}
-              </button>
-            </div>
+          {/* Interactive Embed or Preview (ONLY FOR FREE TOOLS - DISABLED FOR PRO) */}
+          {!isPaid ? (
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Live Preview</h4>
+                <button
+                  onClick={() => setShowEmbed(!showEmbed)}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  {showEmbed ? 'Hide Embed' : 'Load In-Browser Preview'}
+                </button>
+              </div>
 
-            {showEmbed ? (
-              <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-300 bg-white relative">
-                <iframe
-                  src={tool.url}
-                  title={tool.name}
-                  className="w-full h-full border-0"
-                  sandbox="allow-scripts allow-same-origin"
-                />
-                <div className="absolute bottom-2 right-2 bg-white/95 text-slate-600 text-[10px] px-2 py-1 rounded border border-slate-200 shadow-sm">
-                  If blocked by website policy, click "Open Website".
+              {showEmbed ? (
+                <div className="w-full h-80 rounded-2xl overflow-hidden border border-slate-300 bg-white relative">
+                  <iframe
+                    src={tool.url}
+                    title={tool.name}
+                    className="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                  <div className="absolute bottom-2 right-2 bg-white/95 text-slate-600 text-[10px] px-2 py-1 rounded border border-slate-200 shadow-sm">
+                    If blocked by website policy, click "Open Website".
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <span className="text-xs text-slate-600 font-medium truncate">
-                  {isPaid ? 'Demo / Website URL:' : 'Official URL:'} <strong className="text-slate-900 ml-1">{tool.url}</strong>
-                </span>
-                <div className="flex items-center gap-2 shrink-0">
-                  {isPaid && tool.url && (
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <span className="text-xs text-slate-600 font-medium truncate">
+                    Official URL: <strong className="text-slate-900 ml-1">{tool.url}</strong>
+                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => {
-                        onVisitTool(tool);
-                        window.open(tool.url, '_blank', 'noopener,noreferrer');
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
-                      title="Visit Demo / Official Website"
+                      onClick={() => onVisitTool(tool)}
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-xs transition-colors"
+                      title="Visit Official Website"
                     >
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-600" />
-                      <span>Demo Link</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Website</span>
                     </button>
-                  )}
-                  <button
-                    onClick={handleCopyLink}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5 text-red-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-                  </button>
+                    <button
+                      onClick={handleCopyLink}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-xs transition-colors"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5 text-red-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Premium Pro Lock Card (No Demo Available) */
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50/50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-500 text-slate-950 flex items-center justify-center shrink-0 font-black text-sm shadow-xs">
+                  🔒
+                </div>
+                <div>
+                  <div className="font-black text-slate-900 flex items-center gap-1.5">
+                    <span>Premium Pro / VIP Tool</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 font-extrabold uppercase">
+                      Private Access
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 mt-0.5">
+                    Demo is disabled for paid resources. Complete private access & login credentials are provided upon WhatsApp order.
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              <a
+                href={whatsappOrderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleOrderWhatsApp}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-black text-xs shadow-md shadow-emerald-600/20 shrink-0 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5 fill-white" />
+                <span>Buy on WhatsApp</span>
+              </a>
+            </div>
+          )}
 
           {/* Social Share Bar */}
           <div className="flex items-center justify-between pt-4 border-t border-slate-200">

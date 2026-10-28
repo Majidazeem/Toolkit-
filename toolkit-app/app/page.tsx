@@ -113,6 +113,11 @@ export default function HomePage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    const isPaid = tool.pricing === 'Pro' || tool.pricing === 'VIP' || tool.pricing === 'Paid' || Boolean(tool.price);
+    if (isPaid) {
+      setActiveDetailTool(tool);
+      return;
+    }
     if (typeof window !== 'undefined') {
       window.open(tool.url, '_blank', 'noopener,noreferrer');
     }
